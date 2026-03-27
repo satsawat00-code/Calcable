@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณแรงดันตก - For_Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style> 
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f3f4f6; 
+        } 
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+            <span>⚡ For_Engineer</span>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <!-- จุดที่แก้ไขที่ 1: เปลี่ยนความกว้างจาก max-w-5xl เป็น max-w-7xl (กว้างขึ้น) หรือจะเปลี่ยนเป็น w-full ล้วนๆ เลยก็ได้ -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
+        
+        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า จัดให้อยู่บรรทัดเดียวกันเพื่อประหยัดพื้นที่ -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
+                โปรแกรมคำนวณแรงดันตก
+            </h1>
+            
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md">
+                ← กลับหน้าแรก
+            </a>
+        </div>
+
+        <!-- จุดที่แก้ไขที่ 2: ลบกล่อง <div class="bg-white p-8..."> ออกไปเลย -->
+        <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
+        
+        <div class="w-full">
+            <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมคำนวณแรงดันตก (Voltage Drop)</title>
+    
+    <!-- นำเข้า Tailwind CSS สำหรับตกแต่งความสวยงาม -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- นำเข้า React และ ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- นำเข้า Babel สำหรับแปลงโค้ด JSX ในเบราว์เซอร์ -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // --- Icons ---
+        const Zap = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>);
+        const Activity = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
+        const Settings = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+        const CheckCircle2 = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>);
+        const AlertCircle = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+
+        // --- Data Tables (EIT 2021) ---
+        const pvcSingle = [
+            [1.0, 44, 44, 44, 38, 38, 38, 38], [1.5, 29, 29, 29, 25, 25, 25, 25],
+            [2.5, 18, 18, 18, 15, 15, 15, 15], [4, 11, 11, 11, 9.5, 9.5, 9.5, 9.5],
+            [6, 7.3, 7.3, 7.3, 6.4, 6.4, 6.4, 6.4], [10, 4.4, 4.4, 4.4, 3.8, 3.8, 3.8, 3.8],
+            [16, 2.8, 2.8, 2.8, 2.4, 2.4, 2.4, 2.4], [25, 1.81, 1.75, 1.75, 1.52, 1.50, 1.50, 1.52],
+            [35, 1.33, 1.25, 1.27, 1.13, 1.11, 1.12, 1.15], [50, 1.00, 0.94, 0.97, 0.85, 0.81, 0.84, 0.86],
+            [70, 0.71, 0.66, 0.69, 0.61, 0.57, 0.60, 0.63], [95, 0.56, 0.50, 0.54, 0.48, 0.44, 0.47, 0.50],
+            [120, 0.48, 0.41, 0.45, 0.40, 0.35, 0.39, 0.43], [150, 0.41, 0.35, 0.39, 0.35, 0.30, 0.34, 0.38],
+            [185, 0.36, 0.29, 0.34, 0.31, 0.26, 0.30, 0.34], [240, 0.30, 0.25, 0.29, 0.27, 0.21, 0.25, 0.29],
+            [300, 0.27, 0.22, 0.26, 0.24, 0.18, 0.23, 0.26], [400, 0.25, 0.19, 0.23, 0.22, 0.16, 0.20, 0.24],
+            [500, 0.23, 0.17, 0.21, 0.20, 0.15, 0.18, 0.22]
+        ];
+        const pvcMulti = [
+            [1.0, 44, 38], [1.5, 29, 25], [2.5, 18, 15], [4, 11, 9.5],
+            [6, 7.3, 6.4], [10, 4.4, 3.8], [16, 2.8, 2.4], [25, 1.75, 1.50],
+            [35, 1.25, 1.10], [50, 0.93, 0.80], [70, 0.65, 0.57], [95, 0.49, 0.43],
+            [120, 0.41, 0.36], [150, 0.34, 0.29], [185, 0.29, 0.25], [240, 0.24, 0.21],
+            [300, 0.21, 0.18], [400, 0.17, 0.15]
+        ];
+        const xlpeSingle = [
+            [1.0, 46, 46, 46, 40, 40, 40, 40], [1.5, 31, 31, 31, 27, 27, 27, 27],
+            [2.5, 19, 19, 19, 16, 16, 16, 16], [4, 12, 12, 12, 10, 10, 10, 10],
+            [6, 7.9, 7.9, 7.9, 6.8, 6.8, 6.8, 6.8], [10, 4.7, 4.7, 4.7, 4.0, 4.0, 4.0, 4.0],
+            [16, 2.9, 2.9, 2.9, 2.5, 2.5, 2.5, 2.5], [25, 1.85, 1.85, 1.85, 1.60, 1.57, 1.58, 1.60],
+            [35, 1.37, 1.35, 1.37, 1.17, 1.14, 1.15, 1.17], [50, 1.04, 1.00, 1.02, 0.91, 0.87, 0.87, 0.90],
+            [70, 0.75, 0.70, 0.73, 0.65, 0.61, 0.62, 0.64], [95, 0.58, 0.52, 0.56, 0.50, 0.45, 0.46, 0.50],
+            [120, 0.49, 0.42, 0.47, 0.42, 0.37, 0.38, 0.42], [150, 0.42, 0.36, 0.40, 0.37, 0.31, 0.33, 0.37],
+            [185, 0.37, 0.31, 0.35, 0.32, 0.26, 0.27, 0.31], [240, 0.32, 0.25, 0.30, 0.27, 0.22, 0.23, 0.27],
+            [300, 0.28, 0.22, 0.26, 0.24, 0.19, 0.20, 0.24], [400, 0.25, 0.19, 0.23, 0.22, 0.17, 0.18, 0.22],
+            [500, 0.23, 0.17, 0.21, 0.20, 0.15, 0.16, 0.20]
+        ];
+        const xlpeMulti = [
+            [1.0, 46, 40], [1.5, 31, 27], [2.5, 19, 16], [4, 12, 10],
+            [6, 7.9, 6.8], [10, 4.7, 4.0], [16, 2.9, 2.5], [25, 1.85, 1.60],
+            [35, 1.35, 1.15], [50, 0.99, 0.86], [70, 0.68, 0.60], [95, 0.52, 0.44],
+            [120, 0.42, 0.36], [150, 0.35, 0.31], [185, 0.30, 0.25], [240, 0.24, 0.22],
+            [300, 0.21, 0.18], [400, 0.19, 0.16]
+        ];
+
+        function App() {
+            // --- State ---
+            const [calcMethod, setCalcMethod] = useState('Auto');
+            
+            // Manual Mode State
+            const [manualR, setManualR] = useState(0.2);
+            const [manualXL, setManualXL] = useState(0.08);
+            const [manualPF, setManualPF] = useState(0.8);
+
+            // System State
+            const [phase, setPhase] = useState('AC 3-Phase');
+            const [limitInput, setLimitInput] = useState(5);
+            const [voltage, setVoltage] = useState(400);
+            const [current, setCurrent] = useState(99);
+            const [length, setLength] = useState(99);
+            
+            // Auto Mode State
+            const [material, setMaterial] = useState('PVC');
+            const [coreType, setCoreType] = useState('Single');
+            const [size, setSize] = useState(150);
+            const [group, setGroup] = useState('1');
+            const [arrangement, setArrangement] = useState('Trefoil');
+
+            // --- Derived Data ---
+            const availableSizes = useMemo(() => {
+                return coreType === 'Single'
+                    ? [1.0, 1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500]
+                    : [1.0, 1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400];
+            }, [coreType]);
+
+            useEffect(() => {
+                if (!availableSizes.includes(size)) {
+                    setSize(availableSizes[availableSizes.length > 5 ? 5 : 0]); // Fallback size
+                }
+            }, [availableSizes, size]);
+
+            const showArrangement = useMemo(() => {
+                return ['3', '4', '6', '7'].includes(group) && coreType === 'Single';
+            }, [group, coreType]);
+
+            // --- Calculations ---
+            const results = useMemo(() => {
+                let mV = 0;
+                let vdVolts = 0;
+                
+                const I = Number(current) || 0;
+                const L = Number(length) || 0;
+                const V = Number(voltage) || 400;
+
+                if (calcMethod === 'Auto') {
+                    let table = [];
+                    if (material === 'PVC') {
+                        table = coreType === 'Single' ? pvcSingle : pvcMulti;
+                    } else {
+                        table = coreType === 'Single' ? xlpeSingle : xlpeMulti;
+                    }
+
+                    const row = table.find(r => r[0] === Number(size));
+
+                    if (row) {
+                        if (coreType === 'Multi') {
+                            mV = phase === 'AC 1-Phase' ? row[1] : row[2];
+                        } else {
+                            const isG125 = ['1', '2', '5'].includes(group);
+                            if (phase === 'AC 1-Phase') {
+                                if (isG125) {
+                                    mV = row[1];
+                                } else {
+                                    mV = arrangement === 'Spaced' ? row[3] : row[2];
+                                }
+                            } else { 
+                                if (isG125) {
+                                    mV = row[4];
+                                } else {
+                                    if (arrangement === 'Trefoil') mV = row[5];
+                                    else if (arrangement === 'Flat') mV = row[6];
+                                    else mV = row[7];
+                                }
+                            }
+                        }
+                    }
+                    vdVolts = (mV * I * L) / 1000;
+                } else {
+                    const R = Number(manualR) || 0;
+                    const XL = Number(manualXL) || 0;
+                    const PF = Number(manualPF) || 0;
+                    
+                    const safePF = Math.max(-1, Math.min(1, PF));
+                    const theta = Math.acos(safePF);
+                    const sinTheta = Math.sin(theta);
+                    
+                    const factor = phase === 'AC 1-Phase' ? 2 : Math.sqrt(3);
+                    
+                    vdVolts = (factor * I * (R * safePF + XL * sinTheta) * L) / 1000;
+                }
+
+                const vdPercent = V > 0 ? (vdVolts / V) * 100 : 0;
+                const limit = Number(limitInput) || 5;
+                const isPass = vdPercent <= limit;
+                const loadVoltage = V - vdVolts;
+
+                return { mV, vdVolts, vdPercent, limit, isPass, loadVoltage };
+            }, [calcMethod, phase, limitInput, voltage, current, length, material, coreType, size, group, arrangement, manualR, manualXL, manualPF]);
+
+            return (
+                <div className="min-h-screen bg-slate-50 text-slate-900 pb-12">
+                    {/* Header */}
+                    <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-indigo-600 p-2 rounded-lg">
+                                    <Zap className="w-5 h-5 text-white" />
+                                </div>
+                                <h1 className="text-xl font-bold tracking-tight">
+                                    VoltageDrop<span className="text-indigo-600">Calc</span>
+                                </h1>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+                        <div className="flex flex-col lg:flex-row gap-8">
+                            
+                            {/* Left Column (Inputs) */}
+                            <div className="flex-1 space-y-6">
+                                
+                                {/* Diagram */}
+                                <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                                    <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                                        <Activity className="w-5 h-5 text-indigo-500" />
+                                        <h2 className="text-lg font-semibold">แผนภาพแสดงผล (Diagram)</h2>
+                                    </div>
+                                    
+                                    <div className="w-full overflow-x-auto bg-slate-50/50 rounded-xl border border-slate-100 p-4">
+                                        <div className="min-w-[650px]">
+                                            <svg viewBox="0 0 800 220" className="w-full h-auto">
+                                                <defs>
+                                                    <marker id="arrowhead-current" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+                                                        <polygon points="0 0, 6 2, 0 4" fill="#ef4444" />
+                                                    </marker>
+                                                    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                                                        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.05" />
+                                                    </filter>
+                                                </defs>
+
+                                                <line x1="140" y1="50" x2="660" y2="50" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4,4" />
+                                                <line x1="140" y1="45" x2="140" y2="55" stroke="#94a3b8" strokeWidth="1.5" />
+                                                <line x1="660" y1="45" x2="660" y2="55" stroke="#94a3b8" strokeWidth="1.5" />
+                                                <text x="400" y="40" fill="#64748b" fontSize="14" fontWeight="500" textAnchor="middle">{length} เมตร</text>
+
+                                                <line x1="140" y1="130" x2="660" y2="130" stroke="#cbd5e1" strokeWidth="3" />
+
+                                                <rect x="40" y="90" width="100" height="80" fill="#e0e7ff" stroke="#818cf8" strokeWidth="2" rx="16" />
+                                                <text x="90" y="125" fill="#3730a3" fontSize="20" fontWeight="bold" textAnchor="middle">LP</text>
+                                                <text x="90" y="150" fill="#4338ca" fontSize="14" fontWeight="600" textAnchor="middle">{voltage} V</text>
+
+                                                <rect x="660" y="90" width="100" height="80" fill="#f8fafc" stroke="#94a3b8" strokeWidth="2" rx="16" />
+                                                <text x="710" y="125" fill="#334155" fontSize="20" fontWeight="bold" textAnchor="middle">Load</text>
+                                                <text x="710" y="150" fill={results.isPass ? "#059669" : "#e11d48"} fontSize="14" fontWeight="600" textAnchor="middle">
+                                                    {results.loadVoltage.toFixed(1)} V
+                                                </text>
+
+                                                <rect x="280" y="110" width="240" height="40" fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" rx="20" filter="url(#shadow)" />
+                                                <text x="400" y="135" fill="#475569" fontSize="14" fontWeight="600" textAnchor="middle">
+                                                    {calcMethod === 'Auto' ? `สาย ${size} mm² (${material} ${coreType === 'Single' ? 'Single' : 'Multi'})` : `R = ${manualR} Ω/km, XL = ${manualXL} Ω/km`}
+                                                </text>
+                                                
+                                                <text x="400" y="180" fill="#64748b" fontSize="13" textAnchor="middle">
+                                                    {calcMethod === 'Auto' ? `กลุ่มการติดตั้ง ${group} ${showArrangement ? `(${arrangement})` : ''}` : `Power Factor (Cosθ) = ${manualPF}`}
+                                                </text>
+
+                                                <line x1="360" y1="90" x2="440" y2="90" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowhead-current)" />
+                                                <text x="400" y="80" fill="#ef4444" fontSize="14" fontWeight="600" textAnchor="middle">I = {current} A</text>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Tabs */}
+                                <div className="flex bg-slate-200/60 p-1.5 rounded-xl w-fit">
+                                    <button
+                                        onClick={() => setCalcMethod('Auto')}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${calcMethod === 'Auto' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-600 hover:text-slate-900'}`}
+                                    >
+                                        คำนวณอัตโนมัติ (Auto)
+                                    </button>
+                                    <button
+                                        onClick={() => setCalcMethod('Manual')}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${calcMethod === 'Manual' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-600 hover:text-slate-900'}`}
+                                    >
+                                        กรอกพารามิเตอร์เอง (Manual)
+                                    </button>
+                                </div>
+                                
+                                {/* System & Load */}
+                                <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                                    <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                                        <Settings className="w-5 h-5 text-slate-500" />
+                                        <h2 className="text-lg font-semibold">ข้อมูลระบบไฟฟ้าและโหลด (System & Load)</h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        
+                                        <div className="flex flex-col space-y-1.5">
+                                            <label className="text-sm font-medium text-slate-700">ระบบไฟฟ้า (Phase)</label>
+                                            <select value={phase} onChange={e => setPhase(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                                <option value="AC 3-Phase">AC 3-Phase</option>
+                                                <option value="AC 1-Phase">AC 1-Phase</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="flex flex-col space-y-1.5">
+                                            <label className="text-sm font-medium text-slate-700">เกณฑ์มาตรฐาน (%)</label>
+                                            <div className="relative">
+                                                <input type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-slate-500 text-sm">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col space-y-1.5">
+                                            <label className="text-sm font-medium text-slate-700">แรงดันไฟฟ้า (Voltage)</label>
+                                            <div className="relative">
+                                                <input type="number" value={voltage} onChange={e => setVoltage(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-slate-500 text-sm">V</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col space-y-1.5">
+                                            <label className="text-sm font-medium text-slate-700">กระแสโหลด (Current)</label>
+                                            <div className="relative">
+                                                <input type="number" value={current} onChange={e => setCurrent(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-slate-500 text-sm">A</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col space-y-1.5">
+                                            <label className="text-sm font-medium text-slate-700">ความยาวสาย (Length)</label>
+                                            <div className="relative">
+                                                <input type="number" value={length} onChange={e => setLength(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-slate-500 text-sm">m</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Auto / Manual Sections */}
+                                {calcMethod === 'Auto' ? (
+                                    <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                                        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                                            <Zap className="w-5 h-5 text-indigo-500" />
+                                            <h2 className="text-lg font-semibold">ข้อมูลสายและการติดตั้ง (Cable & Installation)</h2>
+                                        </div>
+                                        
+                                        {/* ตรงนี้คือส่วนที่หายไปในเวอร์ชันก่อนหน้า ได้เพิ่มกลับเข้ามาให้ครบแล้ว */}
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                
+                                                <div className="flex flex-col space-y-1.5">
+                                                    <label className="text-sm font-medium text-slate-700">ฉนวน (Material)</label>
+                                                    <select value={material} onChange={e => setMaterial(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                                        <option value="PVC">PVC</option>
+                                                        <option value="XLPE">XLPE</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="flex flex-col space-y-1.5">
+                                                    <label className="text-sm font-medium text-slate-700">แกน (Core Type)</label>
+                                                    <select value={coreType} onChange={e => setCoreType(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                                        <option value="Single">Single Core</option>
+                                                        <option value="Multi">Multi Core</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="flex flex-col space-y-1.5">
+                                                    <label className="text-sm font-medium text-slate-700">ขนาดสาย (Size)</label>
+                                                    <div className="relative">
+                                                        <select value={size} onChange={e => setSize(Number(e.target.value))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none">
+                                                            {availableSizes.map(s => (
+                                                                <option key={s} value={s}>{s}</option>
+                                                            ))}
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-8 pr-2 flex items-center pointer-events-none">
+                                                            <span className="text-slate-500 text-sm">mm²</span>
+                                                        </div>
+                                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                                            <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col space-y-1.5">
+                                                <label className="text-sm font-medium text-slate-700">กลุ่มการติดตั้ง (Installation Group)</label>
+                                                <select value={group} onChange={e => setGroup(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                                    <option value="1">กลุ่ม 1: เดินช่องเดินสายภายในฝ้าเพดาน/ผนังกันไฟ</option>
+                                                    <option value="2">กลุ่ม 2: เดินช่องเดินสายเกาะผนัง/เพดาน</option>
+                                                    <option value="3">กลุ่ม 3: เดินลอยในอากาศ (ไม่มีสิ่งกีดขวาง)</option>
+                                                    <option value="4">กลุ่ม 4: วางบนรางเคเบิลแบบระบายอากาศ</option>
+                                                    <option value="5">กลุ่ม 5: ฝังดินโดยตรง</option>
+                                                    <option value="6">กลุ่ม 6: ร้อยท่อฝังดิน</option>
+                                                    <option value="7">กลุ่ม 7: วางบนรางเคเบิลแบบบันได</option>
+                                                </select>
+                                            </div>
+
+                                            {showArrangement && (
+                                                <div className="flex flex-col space-y-1.5 border-t border-slate-100 pt-4 mt-2">
+                                                    <label className="text-sm font-medium text-slate-700">รูปแบบการจัดเรียง (Arrangement)</label>
+                                                    <select value={arrangement} onChange={e => setArrangement(e.target.value)} className="w-full md:w-1/2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                                        <option value="Trefoil">Trefoil (กลุ่ม 3 เส้น)</option>
+                                                        <option value="Flat">Flat (วางหน้ากระดาน)</option>
+                                                        <option value="Spaced">Spaced (วางห่างกัน)</option>
+                                                    </select>
+                                                    <p className="text-xs text-slate-500 mt-1">ใช้สำหรับกลุ่มการติดตั้ง 3, 4, 6, 7 ที่เป็นสายแกนเดี่ยว (Single Core)</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </section>
+                                ) : (
+                                    <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                                        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                                            <Zap className="w-5 h-5 text-indigo-500" />
+                                            <h2 className="text-lg font-semibold">ข้อมูลพารามิเตอร์สาย (Manual Parameters)</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="flex flex-col space-y-1.5">
+                                                <label className="text-sm font-medium text-slate-700">ความต้านทานสาย (R)</label>
+                                                <div className="relative">
+                                                    <input type="number" step="0.001" value={manualR} onChange={e => setManualR(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                        <span className="text-slate-500 text-sm">Ω/km</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col space-y-1.5">
+                                                <label className="text-sm font-medium text-slate-700">ความต้านทานเชิงเหนี่ยวนำ (XL)</label>
+                                                <div className="relative">
+                                                    <input type="number" step="0.001" value={manualXL} onChange={e => setManualXL(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                        <span className="text-slate-500 text-sm">Ω/km</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col space-y-1.5">
+                                                <label className="text-sm font-medium text-slate-700">Power Factor (Cosθ)</label>
+                                                <div className="relative">
+                                                    <input type="number" step="0.01" min="0" max="1" value={manualPF} onChange={e => setManualPF(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
+
+                            {/* Right Column (Results) */}
+                            <div className="w-full lg:w-96">
+                                <div className="sticky top-24 space-y-6">
+                                    
+                                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                                        <div className="p-6 bg-slate-900 text-white">
+                                            <h3 className="text-sm font-medium text-slate-400 mb-1">ผลการประเมินแรงดันตก</h3>
+                                            <div className="flex items-end gap-2">
+                                                <span className="text-5xl font-bold tracking-tight">{results.vdPercent.toFixed(2)}</span>
+                                                <span className="text-2xl text-slate-400 mb-1">%</span>
+                                            </div>
+                                            <p className="text-sm text-slate-300 mt-2">
+                                                แรงดันไฟฟ้าตก: <strong className="text-white text-base">{results.vdVolts.toFixed(2)} V</strong>
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="p-6 bg-white space-y-4">
+                                            {calcMethod === 'Auto' ? (
+                                                <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                                                    <span className="text-slate-500">ค่าคงที่จากตาราง</span>
+                                                    <span className="font-semibold text-indigo-600">{results.mV} <span className="text-xs font-normal text-slate-400">mV/A/m</span></span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3 gap-4">
+                                                    <span className="text-slate-500 shrink-0">สมการที่ใช้</span>
+                                                    <span className="font-medium text-indigo-600 text-xs text-right bg-indigo-50 px-2 py-1 rounded">
+                                                        {phase === 'AC 1-Phase' ? 'VD = 2 × I(R Cosθ + XL Sinθ) × L' : 'VD = √3 × I(R Cosθ + XL Sinθ) × L'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                                                <span className="text-slate-500">เกณฑ์มาตรฐาน</span>
+                                                <span className="font-semibold text-slate-900">ไม่เกิน {results.limit}%</span>
+                                            </div>
+
+                                            {results.isPass ? (
+                                                <div className="mt-4 p-4 rounded-xl flex items-start gap-3 bg-emerald-50 border border-emerald-100">
+                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
+                                                    <div>
+                                                        <h4 className="font-semibold text-emerald-800">ผ่านเกณฑ์มาตรฐาน</h4>
+                                                        <p className="text-sm mt-1 text-emerald-600">แรงดันตกอยู่ในเกณฑ์ที่ใช้งานได้อย่างปลอดภัย</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-4 p-4 rounded-xl flex items-start gap-3 bg-rose-50 border border-rose-100">
+                                                    <AlertCircle className="w-6 h-6 text-rose-500 shrink-0" />
+                                                    <div>
+                                                        <h4 className="font-semibold text-rose-800">แรงดันตกเกินมาตรฐาน</h4>
+                                                        <p className="text-sm mt-1 text-rose-600">ควรเพิ่มขนาดสายไฟ หรือลดความยาว/โหลด</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 leading-relaxed">
+                                            <p className="font-semibold text-slate-700 mb-1">คำแนะนำ:</p>
+                                            <p>อ้างอิงมาตรฐาน วสท. 2564 มาตรฐานการติดตั้งทางไฟฟ้าฯ กำหนดค่าแรงดันตกในส่วนของระบบแรงต่ำไว้ ดังนี้</p>
+                                            <ol className="list-decimal pl-4 mt-1 space-y-1">
+                                                <li>กรณีรับไฟแรงต่ำจากการไฟฟ้าฯ แรงดันตกคิดจากเครื่องวัดถึงจุดใช้ไฟจุดสุดท้าย ต้องไม่เกิน 5%</li>
+                                                <li>กรณีรับไฟแรงสูงจากการไฟฟ้าฯ แรงดันตกคิดจากเมนสวิตช์ถึงจุดใช้ไฟจุดสุดท้าย ต้องไม่เกิน 5%</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+        </div>
+
+    </main>
+</body>
+</html>

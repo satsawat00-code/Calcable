@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณขนาดรางเดินสาย - For_Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style> 
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f3f4f6; 
+        } 
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+            <span>⚡ For_Engineer</span>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <!-- จุดที่แก้ไขที่ 1: เปลี่ยนความกว้างจาก max-w-5xl เป็น max-w-7xl (กว้างขึ้น) หรือจะเปลี่ยนเป็น w-full ล้วนๆ เลยก็ได้ -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
+        
+        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า จัดให้อยู่บรรทัดเดียวกันเพื่อประหยัดพื้นที่ -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
+                โปรแกรมคำนวณขนาดรางเดินสาย
+            </h1>
+            
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md">
+                ← กลับหน้าแรก
+            </a>
+        </div>
+
+        <!-- จุดที่แก้ไขที่ 2: ลบกล่อง <div class="bg-white p-8..."> ออกไปเลย -->
+        <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
+        
+        <div class="w-full">
+            <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conduit Size Calculator</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel (สำหรับการแปลง JSX ใน Browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // --- Inline SVG Icons (แทนที่การ import จาก lucide-react) ---
+        const Zap = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        const Settings = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const Plus = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const Trash2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>;
+        const AlertCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const CheckCircle2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>;
+        const Edit3 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>;
+
+
+        // --- ฟังก์ชันคำนวณพื้นที่หน้าตัดจากเส้นผ่านศูนย์กลาง (Area = pi * r^2) ---
+        const calcAreaFromDiameter = (diameter) => {
+            return (Math.PI * Math.pow(diameter / 2, 2)).toFixed(1);
+        };
+
+        // --- ข้อมูลอ้างอิงขนาดท่อร้อยสาย (หาพื้นที่หน้าตัดจากสูตร A = Pi * d^2 / 4) ---
+        const CONDUIT_SIZES = [
+            { size: '1/2"', mm: '15' },
+            { size: '3/4"', mm: '20' },
+            { size: '1"', mm: '25' },
+            { size: '1 1/4"', mm: '32' },
+            { size: '1 1/2"', mm: '40' },
+            { size: '2"', mm: '50' },
+            { size: '2 1/2"', mm: '65' },
+            { size: '3"', mm: '80' },
+            { size: '3 1/2"', mm: '90' },
+            { size: '4"', mm: '100' },
+            { size: '5"', mm: '125' },
+            { size: '6"', mm: '150' },
+        ].map(conduit => ({
+            ...conduit,
+            area: (Math.PI * Math.pow(parseFloat(conduit.mm), 2)) / 4
+        }));
+
+        // --- ข้อมูลอ้างอิงเส้นผ่านศูนย์กลางสายไฟฟ้า ตาม มอก.11-2553 (หน่วย มม.) ---
+        const CABLE_DIAMETERS = {
+            'IEC 01': {
+                '1.5': 3.3, '2.5': 4.0, '4': 4.6, '6': 5.2, '10': 6.7, '16': 7.8, '25': 9.7, '35': 10.9, '50': 12.8, '70': 14.6, '95': 17.1, '120': 18.8, '150': 20.9, '185': 23.3, '240': 26.6, '300': 29.6, '400': 33.2
+            },
+            'NYY 1-C': {
+                '1.0': 8.8, '1.5': 9.2, '2.5': 9.8, '4': 10.5, '6': 11.0, '10': 12.0, '16': 13.0, '25': 14.5, '35': 16.0, '50': 17.0, '70': 19.0, '95': 21.5, '120': 23.0, '150': 26.0, '185': 28.0, '240': 31.5, '300': 35.0, '400': 38.5, '500': 43.0
+            },
+            'NYY 2-C': {
+                '1.0': 12.5, '1.5': 13.0, '2.5': 14.0, '4': 15.5, '6': 17.0, '10': 19.5, '16': 22.5, '25': 27.0, '35': 29.5, '50': 33.5, '70': 38.0, '95': 42.5, '120': 46.5, '150': 52.0, '185': 57.0, '240': 64.0, '300': 70.5
+            },
+            'NYY 3-C': {
+                '1.0': 13.0, '1.5': 13.5, '2.5': 15.0, '4': 16.5, '6': 18.0, '10': 20.5, '16': 24.6, '25': 28.5, '35': 31.5, '50': 36.0, '70': 40.5, '95': 46.0, '120': 50.5, '150': 56.0, '185': 61.5, '240': 69.0, '300': 76.0
+            },
+            'NYY 4-C': {
+                '1.0': 14.0, '1.5': 14.5, '2.5': 16.0, '4': 17.5, '6': 19.0, '10': 23.0, '16': 26.5, '25': 31.0, '35': 35.0, '50': 39.5, '70': 44.5, '95': 51.5, '120': 56.0, '150': 62.0, '185': 68.0, '240': 76.5, '300': 85.0
+            },
+            'VCT 1-C': {
+                '1.0': 6.2, '1.5': 6.6, '2.5': 7.4, '4': 8.6, '6': 9.4, '10': 12.0, '16': 13.5, '25': 16.0, '35': 17.5
+            },
+            'VCT 2-C': {
+                '1.0': 9.6, '1.5': 11.0, '2.5': 12.5, '4': 14.5, '6': 16.0, '10': 20.0, '16': 23.0, '25': 27.5, '35': 31.0
+            },
+            'VCT 3-C': {
+                '1.0': 10.5, '1.5': 11.5, '2.5': 13.0, '4': 15.5, '6': 17.5, '10': 21.5, '16': 25.0, '25': 30.0, '35': 33.5
+            },
+            'VCT 4-C': {
+                '1.0': 12.0, '1.5': 12.5, '2.5': 15.0, '4': 17.0, '6': 19.5, '10': 24.0, '16': 28.0, '25': 33.0, '35': 37.0
+            },
+            'NYY-GRD 2-C': {
+                '1.0': 13.5, '1.5': 14.0, '2.5': 15.0, '4': 16.5, '6': 18.0, '10': 21.0, '16': 23.5, '25': 28.0, '35': 30.0, '50': 34.0, '70': 38.5, '95': 43.5, '120': 47.5, '150': 53.0, '185': 57.5, '240': 64.5, '300': 71.0
+            },
+            'NYY-GRD 3-C': {
+                '1.0': 14.0, '1.5': 15.0, '2.5': 16.0, '4': 18.0, '6': 19.0, '10': 22.5, '16': 26.5, '25': 30.5, '35': 33.0, '50': 38.5, '70': 42.5, '95': 48.5, '120': 53.5, '150': 59.0, '185': 64.5, '240': 72.0, '300': 79.5
+            },
+            'NYY-GRD 4-C': {
+                '1.0': 15.0, '1.5': 16.0, '2.5': 17.0, '4': 19.0, '6': 20.5, '10': 25.0, '16': 28.5, '25': 34.0, '35': 39.0, '50': 43.5, '70': 49.0, '95': 56.5, '120': 61.5, '150': 68.0, '185': 75.0, '240': 84.5, '300': 93.5
+            },
+            'VCT-GRD 2-C': {
+                '1.0': 10.0, '1.5': 12.0, '2.5': 13.0, '4': 15.5, '6': 17.5, '10': 21.5, '16': 25.0, '25': 28.5, '35': 31.5
+            },
+            'VCT-GRD 3-C': {
+                '1.0': 11.5, '1.5': 12.5, '2.5': 14.0, '4': 17.0, '6': 19.5, '10': 24.0, '16': 28.0, '25': 33.0, '35': 37.0
+            },
+            'VCT-GRD 4-C': {
+                '1.0': 13.0, '1.5': 14.0, '2.5': 15.5, '4': 18.5, '6': 21.5, '10': 26.5, '16': 30.5, '25': 36.5, '35': 41.5
+            }
+        };
+
+        function App() {
+            // State
+            const [selectedSize, setSelectedSize] = useState('Auto');
+            const [fillPercentage, setFillPercentage] = useState(40);
+            
+            // โครงสร้าง state สายไฟเพิ่ม Type และ Area (เพื่อเก็บค่าที่คำนวณหรือแก้เอง)
+            const initialDefaultType = 'IEC 01';
+            const initialDefaultSize = '2.5';
+            const initialDiameter = CABLE_DIAMETERS[initialDefaultType][initialDefaultSize];
+            
+            const [wires, setWires] = useState([
+                { 
+                id: 1, 
+                type: initialDefaultType, 
+                size: initialDefaultSize, 
+                area: calcAreaFromDiameter(initialDiameter), 
+                quantity: 3 
+                }
+            ]);
+
+            // Handlers
+            const addWire = () => {
+                setWires([
+                ...wires, 
+                { 
+                    id: Date.now(), 
+                    type: initialDefaultType, 
+                    size: initialDefaultSize, 
+                    area: calcAreaFromDiameter(initialDiameter), 
+                    quantity: 1 
+                }
+                ]);
+            };
+
+            const removeWire = (id) => {
+                setWires(wires.filter(w => w.id !== id));
+            };
+
+            const updateWireType = (id, newType) => {
+                setWires(wires.map(w => {
+                if (w.id === id) {
+                    // เมื่อเปลี่ยน Type ให้ดึงขนาดแรกของ Type นั้นมาเป็นค่าเริ่มต้น โดยเรียงจากน้อยไปมากก่อน
+                    const sortedSizes = Object.keys(CABLE_DIAMETERS[newType]).sort((a, b) => parseFloat(a) - parseFloat(b));
+                    const firstAvailableSize = sortedSizes[0];
+                    const diameter = CABLE_DIAMETERS[newType][firstAvailableSize];
+                    return { 
+                    ...w, 
+                    type: newType, 
+                    size: firstAvailableSize, 
+                    area: calcAreaFromDiameter(diameter) 
+                    };
+                }
+                return w;
+                }));
+            };
+
+            const updateWireSize = (id, newSize) => {
+                setWires(wires.map(w => {
+                if (w.id === id) {
+                    const diameter = CABLE_DIAMETERS[w.type][newSize];
+                    return { 
+                    ...w, 
+                    size: newSize, 
+                    area: calcAreaFromDiameter(diameter) 
+                    };
+                }
+                return w;
+                }));
+            };
+
+            const updateWireArea = (id, newArea) => {
+                setWires(wires.map(w => w.id === id ? { ...w, area: newArea } : w));
+            };
+
+            const updateWireQuantity = (id, newQty) => {
+                setWires(wires.map(w => w.id === id ? { ...w, quantity: newQty } : w));
+            };
+
+            // Calculations
+            const calcResult = useMemo(() => {
+                let totalWireArea = 0;
+                let totalWiresCount = 0;
+
+                wires.forEach(wire => {
+                const qty = parseInt(wire.quantity) || 0;
+                const area = parseFloat(wire.area) || 0;
+                totalWireArea += (area * qty);
+                totalWiresCount += qty;
+                });
+
+                const availableConduits = CONDUIT_SIZES;
+                let recommendedConduit = null;
+                let actualFillPercent = 0;
+                let isOverfilled = false;
+
+                if (selectedSize === 'Auto') {
+                // หาท่อที่เล็กที่สุดที่รองรับได้ (คำนวณอัตโนมัติ)
+                for (let conduit of availableConduits) {
+                    const allowedArea = conduit.area * (fillPercentage / 100);
+                    if (allowedArea >= totalWireArea) {
+                    recommendedConduit = conduit;
+                    actualFillPercent = (totalWireArea / conduit.area) * 100;
+                    break;
+                    }
+                }
+                } else {
+                // ใช้ท่อขนาดที่ผู้ใช้ระบุเอง
+                recommendedConduit = availableConduits.find(c => c.size === selectedSize);
+                if (recommendedConduit) {
+                    actualFillPercent = (totalWireArea / recommendedConduit.area) * 100;
+                    const allowedArea = recommendedConduit.area * (fillPercentage / 100);
+                    isOverfilled = totalWireArea > allowedArea;
+                }
+                }
+
+                return {
+                totalWireArea: totalWireArea.toFixed(2),
+                totalWiresCount,
+                recommendedConduit,
+                actualFillPercent: actualFillPercent.toFixed(2),
+                isOversized: selectedSize === 'Auto' ? !recommendedConduit : isOverfilled, // กรณีใหญ่เกินกว่าท่อที่มี หรือ ท่อที่เลือกเล็กไป
+                isManual: selectedSize !== 'Auto'
+                };
+
+            }, [wires, selectedSize, fillPercentage]);
+
+            // Validation Warnings
+            const isFillWarning = fillPercentage > 40;
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
+                
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-8 max-w-7xl mx-auto">
+                    <div className="bg-indigo-600 p-2 rounded-lg shadow-sm">
+                    <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-slate-900">ConduitSize<span className="text-indigo-600">Calc</span></h1>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto">
+                    
+                    {/* Left Column (Main Content) */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+                    
+                    {/* Diagram Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="p-4 border-b border-slate-100 flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-indigo-500" />
+                        <h2 className="font-semibold text-slate-800">แผนภาพแสดงผล (Diagram)</h2>
+                        </div>
+                        
+                        <div className="p-8 flex justify-center items-center bg-slate-50 min-h-[250px]">
+                        <div className="relative flex flex-col items-center">
+                            {/* Conduit Cross-section Visual */}
+                            <div className="relative w-48 h-48 rounded-full border-[12px] border-slate-300 bg-white flex items-center justify-center shadow-inner overflow-hidden">
+                            
+                            {/* Visual Fill Indicator */}
+                            <div 
+                                className="absolute bottom-0 left-0 w-full bg-indigo-100/50 transition-all duration-500"
+                                style={{ height: `${calcResult.actualFillPercent}%` }}
+                            ></div>
+
+                            {/* Wires representation (Simplified dots based on count) */}
+                            <div className="relative z-10 flex flex-wrap justify-center content-center gap-1 w-24 h-24">
+                                {Array.from({ length: Math.min(calcResult.totalWiresCount, 30) }).map((_, i) => (
+                                <div key={i} className="w-3 h-3 bg-slate-700 rounded-full shadow-sm"></div>
+                                ))}
+                                {calcResult.totalWiresCount > 30 && (
+                                <span className="text-xs text-slate-500 font-bold bg-white/80 px-1 rounded">+{calcResult.totalWiresCount - 30}</span>
+                                )}
+                            </div>
+                            </div>
+
+                            {/* Labels */}
+                            <div className="mt-6 flex flex-col items-center">
+                            <span className="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-semibold shadow-sm border border-indigo-100">
+                                ท่อขนาด {calcResult.recommendedConduit ? `${calcResult.recommendedConduit.size} (${calcResult.recommendedConduit.mm} มม.)` : '-'}
+                            </span>
+                            <span className="text-sm text-slate-500 mt-2">พื้นที่หน้าตัดรวมสาย: {calcResult.totalWireArea} ตร.มม.</span>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    {/* Configuration Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="p-4 border-b border-slate-100 flex items-center gap-2">
+                        <Settings className="w-5 h-5 text-slate-500" />
+                        <h2 className="font-semibold text-slate-800">ข้อมูลท่อและสายไฟฟ้า (System & Load)</h2>
+                        </div>
+
+                        <div className="p-6">
+                        {/* Top settings */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            
+                            <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">ขนาดท่อ (Conduit Size)</label>
+                            <select 
+                                value={selectedSize}
+                                onChange={(e) => setSelectedSize(e.target.value)}
+                                className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                            >
+                                <option value="Auto">คำนวณอัตโนมัติ (Auto)</option>
+                                {CONDUIT_SIZES.map(conduit => (
+                                <option key={conduit.size} value={conduit.size}>{conduit.size} นิ้ว ({conduit.mm} มม.)</option>
+                                ))}
+                            </select>
+                            </div>
+
+                            <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">พื้นที่ใช้งานสูงสุด (Fill Area %)</label>
+                            <div className="relative">
+                                <input 
+                                type="number" 
+                                value={fillPercentage}
+                                onChange={(e) => setFillPercentage(Number(e.target.value))}
+                                className={`w-full border rounded-lg p-2.5 pr-8 outline-none focus:ring-2 ${isFillWarning ? 'border-amber-300 focus:ring-amber-500 focus:border-amber-500' : 'border-slate-300 focus:ring-indigo-500 focus:border-indigo-500'}`}
+                                min="1"
+                                max="100"
+                                />
+                                <span className="absolute right-3 top-2.5 text-slate-400">%</span>
+                            </div>
+                            {isFillWarning && (
+                                <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                มาตรฐานพื้นที่ว่างไม่ควรต่ำกว่า 60% (พื้นที่ใช้งานห้ามเกิน 40%)
+                                </p>
+                            )}
+                            </div>
+                        </div>
+
+                        {/* Wire List */}
+                        <div className="mb-2">
+                            <div className="flex justify-between items-end mb-3">
+                            <label className="block text-sm font-medium text-slate-700">รายการสายไฟฟ้า</label>
+                            <span className="text-xs text-slate-400">* พื้นที่หน้าตัดคำนวณจากเส้นผ่านศูนย์กลางรวมฉนวน (แก้ค่าได้)</span>
+                            </div>
+                            
+                            <div className="space-y-3">
+                            {wires.map((wire, index) => (
+                                <div key={wire.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                
+                                <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-3 w-full">
+                                    {/* ชนิดสาย */}
+                                    <div className="sm:col-span-1">
+                                    <label className="block text-xs text-slate-500 mb-1">ชนิดสาย</label>
+                                    <select 
+                                        value={wire.type}
+                                        onChange={(e) => updateWireType(wire.id, e.target.value)}
+                                        className="w-full border border-slate-300 rounded-md p-2 text-sm outline-none focus:border-indigo-500 bg-white"
+                                    >
+                                        {Object.keys(CABLE_DIAMETERS).map(type => (
+                                        <option key={type} value={type}>{type}</option>
+                                        ))}
+                                    </select>
+                                    </div>
+
+                                    {/* ขนาดสาย */}
+                                    <div className="sm:col-span-1">
+                                    <label className="block text-xs text-slate-500 mb-1">ขนาด (ตร.มม.)</label>
+                                    <select 
+                                        value={wire.size}
+                                        onChange={(e) => updateWireSize(wire.id, e.target.value)}
+                                        className="w-full border border-slate-300 rounded-md p-2 text-sm outline-none focus:border-indigo-500 bg-white"
+                                    >
+                                        {Object.keys(CABLE_DIAMETERS[wire.type])
+                                        .sort((a, b) => parseFloat(a) - parseFloat(b))
+                                        .map(size => (
+                                        <option key={size} value={size}>{size}</option>
+                                        ))}
+                                    </select>
+                                    </div>
+
+                                    {/* พื้นที่หน้าตัด (Editable) */}
+                                    <div className="sm:col-span-1 relative">
+                                    <label className="block text-xs text-slate-500 mb-1 flex items-center gap-1">
+                                        พื้นที่หน้าตัดสาย <Edit3 className="w-3 h-3 text-slate-400" />
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        step="0.1"
+                                        min="0.1"
+                                        value={wire.area}
+                                        onChange={(e) => updateWireArea(wire.id, e.target.value)}
+                                        className="w-full border border-indigo-200 bg-white rounded-md p-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-indigo-700 font-medium"
+                                    />
+                                    </div>
+
+                                    {/* จำนวนเส้น */}
+                                    <div className="sm:col-span-1">
+                                    <label className="block text-xs text-slate-500 mb-1">จำนวน (เส้น)</label>
+                                    <input 
+                                        type="number" 
+                                        min="1"
+                                        value={wire.quantity}
+                                        onChange={(e) => updateWireQuantity(wire.id, parseInt(e.target.value) || '')}
+                                        className="w-full border border-slate-300 rounded-md p-2 text-sm outline-none focus:border-indigo-500"
+                                    />
+                                    </div>
+                                </div>
+                                
+                                {/* ปุ่มลบ */}
+                                <button 
+                                    onClick={() => removeWire(wire.id)}
+                                    disabled={wires.length === 1}
+                                    className={`mt-1 sm:mt-5 p-2 rounded-md ${wires.length === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50'}`}
+                                    title="ลบสายไฟ"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                                </div>
+                            ))}
+                            </div>
+
+                            <button 
+                            onClick={addWire}
+                            className="mt-4 flex items-center gap-2 text-sm text-indigo-600 font-medium hover:text-indigo-700 hover:bg-indigo-50 px-3 py-2 rounded-md transition-colors"
+                            >
+                            <Plus className="w-4 h-4" /> เพิ่มชนิดสายไฟ
+                            </button>
+
+                        </div>
+                        </div>
+                    </div>
+
+                    </div>
+
+                    {/* Right Column (Results) */}
+                    <div className="lg:col-span-4">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-6">
+                        
+                        {/* Dark Header section matching reference image */}
+                        <div className="bg-[#1a2332] p-6 text-white">
+                        <p className="text-slate-300 text-sm mb-2">{calcResult.isManual ? 'ขนาดท่อร้อยสายที่เลือก' : 'ขนาดท่อร้อยสายที่แนะนำ'}</p>
+                        
+                        <div className="flex items-baseline gap-2">
+                            {calcResult.recommendedConduit ? (
+                            <>
+                                <span className={`text-5xl font-bold tracking-tight ${calcResult.isOversized ? 'text-red-400' : ''}`}>{calcResult.recommendedConduit.size}</span>
+                                <span className={`text-xl font-medium ${calcResult.isOversized ? 'text-red-400' : 'text-slate-400'} ml-2`}>นิ้ว ({calcResult.recommendedConduit.mm} มม.)</span>
+                            </>
+                            ) : (
+                            <span className="text-2xl font-bold text-red-400">เกินขนาดท่อมาตรฐาน</span>
+                            )}
+                        </div>
+                        
+                        <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-between items-center text-sm text-slate-300">
+                            <span>พื้นที่ใช้งานจริง:</span>
+                            <span className={`font-medium ${calcResult.actualFillPercent > fillPercentage ? 'text-red-400' : 'text-emerald-400'}`}>
+                            {calcResult.actualFillPercent}%
+                            </span>
+                        </div>
+                        </div>
+
+                        {/* Details section */}
+                        <div className="p-6">
+                        <div className="space-y-4 mb-6">
+                            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                            <span className="text-slate-500">พื้นที่สายไฟรวม</span>
+                            <span className="font-medium text-slate-800">{calcResult.totalWireArea} <span className="text-slate-400 text-xs">ตร.มม.</span></span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                            <span className="text-slate-500">เกณฑ์มาตรฐาน ({fillPercentage}%)</span>
+                            <span className="font-medium text-slate-800">
+                                {calcResult.recommendedConduit ? (calcResult.recommendedConduit.area * (fillPercentage/100)).toFixed(2) : '-'} <span className="text-slate-400 text-xs">ตร.มม.</span>
+                            </span>
+                            </div>
+
+                            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                            <span className="text-slate-500">จำนวนสายรวม</span>
+                            <span className="font-medium text-slate-800">{calcResult.totalWiresCount} <span className="text-slate-400 text-xs">เส้น</span></span>
+                            </div>
+                        </div>
+
+                        {/* Status Alert Box */}
+                        {calcResult.isOversized ? (
+                            <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                            <div>
+                                <h4 className="text-sm font-semibold text-red-700">{calcResult.isManual ? 'ท่อขนาดเล็กเกินไป' : 'ปริมาณสายไฟมากเกินไป'}</h4>
+                                <p className="text-xs text-red-600 mt-1">{calcResult.isManual ? `พื้นที่รวมของสายไฟเกิน ${fillPercentage}% ของท่อขนาด ${selectedSize} ที่คุณเลือก กรุณาเลือกท่อขนาดใหญ่ขึ้น` : 'พื้นที่รวมของสายไฟเกินขนาดท่อใหญ่ที่สุดตามมาตรฐานที่กำหนด ควรพิจารณาแยกวงจรหรือใช้รางเดินสาย'}</p>
+                            </div>
+                            </div>
+                        ) : Number(calcResult.actualFillPercent) > 40 ? (
+                            <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 flex gap-3">
+                            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <div>
+                                <h4 className="text-sm font-semibold text-amber-700">พื้นที่ใช้งานเกิน 40%</h4>
+                                <p className="text-xs text-amber-600 mt-1">คุณกำลังตั้งค่าพื้นที่ใช้งาน ({fillPercentage}%) เกินกว่ามาตรฐาน วสท. ที่แนะนำ (40%) สำหรับสายตั้งแต่ 3 เส้นขึ้นไป</p>
+                            </div>
+                            </div>
+                        ) : (
+                            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 flex gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                            <div>
+                                <h4 className="text-sm font-semibold text-emerald-700">อยู่ในเกณฑ์มาตรฐาน</h4>
+                                <p className="text-xs text-emerald-600 mt-1">ขนาดท่อและจำนวนสายไฟเหมาะสมและเป็นไปตามข้อกำหนดความปลอดภัย</p>
+                            </div>
+                            </div>
+                        )}
+
+                        {/* Hint Note */}
+                        <div className="mt-6">
+                            <div className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong className="text-slate-700 block mb-1">หมายเหตุ:</strong> 
+                                พื้นที่หน้าตัดสายไฟเป็นการคำนวณจากเส้นผ่านศูนย์กลางรวมฉนวน<br/>
+                                <ul className="list-disc pl-4 mt-1 space-y-1">
+                                    <li>1 เส้น พื้นที่หน้าตัดไม่เกิน 53% ของท่อร้อยสาย</li>
+                                    <li>2 เส้น พื้นที่หน้าตัดไม่เกิน 31% ของท่อร้อยสาย</li>
+                                    <li>3 เส้น พื้นที่หน้าตัดไม่เกิน 40% ของท่อร้อยสาย</li>
+                                    <li>4 เส้นขึ้นไป 40%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        </div>
+                    </div>
+                    </div>
+
+                </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+        </div>
+
+    </main>
+</body>
+</html>
