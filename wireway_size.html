@@ -42,7 +42,549 @@
         <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
         
         <div class="w-full">
-            <!-- วางโค้ดเก่าของคุณลงตรงนี้ -->
+          <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CableTraySizeCalc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; }
+        /* ซ่อนลูกศรใน input type number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-gray-800">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-6 text-indigo-700">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold tracking-wide">CableTraySize<span class="text-indigo-400">Calc</span></h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Column: Diagram & Inputs -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Diagram Section -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-2 text-indigo-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                        </svg>
+                        แผนภาพแสดงผล (Diagram)
+                    </h2>
+                    
+                    <div class="flex flex-col items-center justify-center py-4">
+                        <div class="relative w-64 h-32 md:h-40">
+                            <svg class="w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                                <!-- Background Tray (U-Shape) -->
+                                <path d="M 10 10 L 10 90 L 190 90 L 190 10" fill="none" stroke="#e5e7eb" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <!-- Fill Area (Starts from bottom Y=86, max height is around 76) -->
+                                <rect id="diagramFill" x="14" y="86" width="172" height="0" fill="#4f46e5" rx="2" style="transition: all 0.5s ease-in-out;" />
+                            </svg>
+                            <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col">
+                                <span class="text-3xl font-bold text-gray-700 drop-shadow-sm" id="diagramPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <span class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-medium text-sm" id="diagramTrayName">เลือกชนิดรางและสายไฟ</span>
+                            <p class="text-sm text-gray-500 mt-3"><span id="labelDiagramInfo">พื้นที่หน้าตัดรวมสาย</span>: <span id="diagramWireArea">0.00</span> <span id="unitDiagramInfo">ตร.มม.</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inputs Section -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                        </svg>
+                        ข้อมูลท่อและสายไฟฟ้า (System & Load)
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชนิดรางเดินสาย</label>
+                            <select id="trayType" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" onchange="handleTypeChange()">
+                                <option value="wireway">Wireway</option>
+                                <option value="cabletray">Cable Tray</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ขนาดราง (Tray Size)</label>
+                            <select id="traySizeSelect" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" onchange="calculate()">
+                                <!-- Options will be populated via JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">พื้นที่ใช้งานสูงสุด (%) <span class="text-xs text-red-500 font-normal" id="fillHint">(มาตรฐาน 20%)</span></label>
+                            <input type="number" id="maxFill" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="20" onchange="calculate()">
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex justify-between items-end">
+                        <label class="block text-sm font-bold text-gray-700">รายการสายไฟฟ้า</label>
+                        <span class="text-xs text-gray-500">* ค่าคำนวณอ้างอิงตามชนิดสายและราง (แก้ค่าได้)</span>
+                    </div>
+                    
+                    <!-- Table Headers (Hidden on Mobile) -->
+                    <div class="hidden md:flex flex-nowrap gap-2 px-3 mb-2">
+                        <div class="w-1/4 text-xs font-semibold text-gray-500">ชนิดสาย</div>
+                        <div class="w-1/4 text-xs font-semibold text-gray-500">ขนาด (ตร.มม.)</div>
+                        <div class="w-1/4 text-xs font-semibold text-gray-500 flex items-center gap-1">
+                            <span id="colHeaderValue">พื้นที่หน้าตัดสาย (ตร.มม.)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </div>
+                        <div class="w-1/5 text-xs font-semibold text-gray-500">จำนวน (เส้น)</div>
+                        <div class="w-[5%]"></div>
+                    </div>
+
+                    <div id="wireList" class="space-y-3">
+                        <!-- Wire rows will be injected here -->
+                    </div>
+
+                    <button onclick="addWireRow()" class="mt-5 flex items-center gap-1 text-indigo-600 font-medium text-sm hover:text-indigo-800 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        เพิ่มชนิดสายไฟ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Result Panel -->
+            <div class="bg-[#1e2532] text-white p-6 md:p-8 rounded-xl shadow-xl h-fit sticky top-8 flex flex-col">
+                <h3 class="text-gray-400 text-sm font-medium mb-1">ขนาดรางเดินสายที่แนะนำ/เลือก</h3>
+                
+                <div class="mt-2 mb-6 flex items-baseline gap-2">
+                    <span class="text-4xl md:text-5xl font-bold tracking-tight text-white" id="resSize">-</span>
+                </div>
+                
+                <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
+                    <span class="text-sm text-gray-300">พื้นที่ใช้งานจริง:</span>
+                    <span id="resPercent" class="text-lg font-bold text-emerald-400">0.00%</span>
+                </div>
+
+                <div class="space-y-3 text-sm flex-grow">
+                    <div class="flex justify-between text-gray-400">
+                        <span id="labelTotalWire">พื้นที่สายไฟรวม:</span>
+                        <span class="text-gray-200"><span id="resTotalWireArea">0.00</span> <span id="unitTotalWire">ตร.มม.</span></span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>เกณฑ์มาตรฐาน (<span id="resLimitText">20</span>%):</span>
+                        <span class="text-gray-200"><span id="resLimitArea">0.00</span> <span id="unitLimitArea">ตร.มม.</span></span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>จำนวนสายรวม:</span>
+                        <span class="text-gray-200"><span id="resTotalQty">0</span> เส้น</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span id="labelTotalTray">พื้นที่รางทั้งหมด:</span>
+                        <span class="text-gray-200"><span id="resTotalTrayArea">0.00</span> <span id="unitTotalTray">ตร.มม.</span></span>
+                    </div>
+                </div>
+
+                <!-- Status Box -->
+                <div id="statusBox" class="mt-6 bg-emerald-900/30 border border-emerald-500/30 p-4 rounded-lg hidden">
+                    <div class="flex gap-3 items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <div>
+                            <p class="font-medium text-emerald-400 text-sm" id="statusTitle">อยู่ในเกณฑ์มาตรฐาน</p>
+                            <p class="text-xs text-emerald-200/70 mt-1" id="statusDesc">ขนาดรางและจำนวนสายไฟเหมาะสมและเป็นไปตามข้อกำหนดความปลอดภัย</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Database (อ้างอิงจากตาราง มอก. 11-2553 เส้นผ่านศูนย์กลางรวมฉนวน) ---
+        const CABLE_DB = {
+            "IEC 01": { 1.5:3.3, 2.5:4.0, 4:4.6, 6:5.2, 10:6.7, 16:7.8, 25:9.7, 35:10.9, 50:12.8, 70:14.6, 95:17.1, 120:18.8, 150:20.9, 185:23.3, 240:26.6, 300:29.6, 400:33.2 },
+            "NYY 1-C": { 1.0:8.8, 1.5:9.2, 2.5:9.8, 4:10.5, 6:11.0, 10:12.0, 16:13.0, 25:14.5, 35:16.0, 50:17.0, 70:19.0, 95:21.5, 120:23.0, 150:26.0, 185:28.0, 240:31.5, 300:35.0, 400:38.5, 500:43.0 },
+            "NYY 2-C": { 1.0:12.5, 1.5:13, 2.5:14, 4:15.5, 6:17, 10:19.5, 16:22.5, 25:27, 35:29.5, 50:33.5, 70:38.0, 95:42.5, 120:46.5, 150:52.0, 185:57.0, 240:64.0, 300:70.5 },
+            "NYY 3-C": { 1.0:13, 1.5:13.5, 2.5:15, 4:16.5, 6:18, 10:20.5, 16:24.6, 25:28.5, 35:31.5, 50:36.0, 70:40.5, 95:46.0, 120:50.5, 150:56.0, 185:61.5, 240:69.0, 300:76.0 },
+            "NYY 4-C": { 1.0:14, 1.5:14.5, 2.5:16, 4:17.5, 6:19, 10:23, 16:26.5, 25:31, 35:35, 50:39.5, 70:44.5, 95:51.5, 120:56.0, 150:62.0, 185:68.0, 240:76.5, 300:85.0 },
+            "VCT 1-C": { 1.0:6.2, 1.5:6.6, 2.5:7.4, 4:8.6, 6:9.4, 10:12.0, 16:13.5, 25:16.0, 35:17.5 },
+            "VCT 2-C": { 1.0:9.6, 1.5:11, 2.5:12.5, 4:14.5, 6:16.0, 10:20.0, 16:23.0, 25:27.5, 35:31.0 },
+            "VCT 3-C": { 1.0:10.5, 1.5:11.5, 2.5:13, 4:15.5, 6:17.5, 10:21.5, 16:25.0, 25:30.0, 35:33.5 },
+            "VCT 4-C": { 1.0:12, 1.5:12.5, 2.5:15, 4:17.0, 6:19.5, 10:24.0, 16:28.0, 25:33.0, 35:37.0 },
+            "NYY-GRD 2-C": { 1.0:13.5, 1.5:14, 2.5:15, 4:16.5, 6:18, 10:21, 16:23.5, 25:28, 35:30, 50:34, 70:38.5, 95:43.5, 120:47.5, 150:53, 185:57.5, 240:64.5, 300:71 },
+            "NYY-GRD 3-C": { 1.0:14, 1.5:15, 2.5:16, 4:18, 6:19, 10:22.5, 16:26.5, 25:30.5, 35:33, 50:38.5, 70:42.5, 95:48.5, 120:53.5, 150:59, 185:64.5, 240:72, 300:79.5 },
+            "NYY-GRD 4-C": { 1.0:15, 1.5:16, 2.5:17, 4:19, 6:20.5, 10:25, 16:28.5, 25:34, 35:39, 50:43.5, 70:49, 95:56.5, 120:61.5, 150:68, 185:75, 240:84.5, 300:93.5 },
+            "VCT-GRD 2-C": { 1.0:10, 1.5:12, 2.5:13, 4:15.5, 6:17.5, 10:21.5, 16:25, 25:28.5, 35:31.5 },
+            "VCT-GRD 3-C": { 1.0:11.5, 1.5:12.5, 2.5:14, 4:17, 6:19.5, 10:24, 16:28, 25:33, 35:37 },
+            "VCT-GRD 4-C": { 1.0:13, 1.5:14, 2.5:15.5, 4:18.5, 6:21.5, 10:26.5, 16:30.5, 25:36.5, 35:41.5 }
+        };
+
+        const TRAY_SIZES = {
+            wireway: [
+                { name: "50x75 มม.", w: 50, h: 75, area: 3750 },
+                { name: "50x100 มม.", w: 50, h: 100, area: 5000 },
+                { name: "75x100 มม.", w: 75, h: 100, area: 7500 },
+                { name: "100x100 มม.", w: 100, h: 100, area: 10000 },
+                { name: "100x150 มม.", w: 100, h: 150, area: 15000 },
+                { name: "100x200 มม.", w: 100, h: 200, area: 20000 },
+                { name: "100x250 มม.", w: 100, h: 250, area: 25000 },
+                { name: "100x300 มม.", w: 100, h: 300, area: 30000 },
+                { name: "150x300 มม.", w: 150, h: 300, area: 45000 }
+            ],
+            cabletray: [
+                { name: "กว้าง 200 มม.", w: 200, h: 100, area: 20000 },
+                { name: "กว้าง 300 มม.", w: 300, h: 100, area: 30000 },
+                { name: "กว้าง 400 มม.", w: 400, h: 100, area: 40000 },
+                { name: "กว้าง 500 มม.", w: 500, h: 100, area: 50000 },
+                { name: "กว้าง 600 มม.", w: 600, h: 100, area: 60000 },
+                { name: "กว้าง 700 มม.", w: 700, h: 100, area: 70000 },
+                { name: "กว้าง 800 มม.", w: 800, h: 100, area: 80000 },
+                { name: "กว้าง 900 มม.", w: 900, h: 100, area: 90000 },
+                { name: "กว้าง 1000 มม.", w: 1000, h: 100, area: 100000 }
+            ]
+        };
+
+        let rowIdCounter = 0;
+
+        // --- 2. ฟังก์ชันจัดการ UI (ชนิด/ขนาด) ---
+        function populateTraySizes() {
+            const type = document.getElementById('trayType').value;
+            const select = document.getElementById('traySizeSelect');
+            select.innerHTML = '<option value="auto">คำนวณอัตโนมัติ (Auto)</option>';
+            TRAY_SIZES[type].forEach((tray, index) => {
+                select.innerHTML += `<option value="${index}">${tray.name}</option>`;
+            });
+        }
+
+        function handleTypeChange() {
+            const type = document.getElementById('trayType').value;
+            const fillInput = document.getElementById('maxFill');
+            const fillHint = document.getElementById('fillHint');
+            
+            // สลับข้อความและหน่วยให้สอดคล้องกับชนิดราง
+            if (type === 'wireway') {
+                fillInput.value = 20;
+                fillHint.innerText = "(มาตรฐาน 20%)";
+                
+                document.getElementById('colHeaderValue').innerText = "พื้นที่หน้าตัดสาย (ตร.มม.)";
+                document.getElementById('labelDiagramInfo').innerText = "พื้นที่หน้าตัดรวมสาย";
+                document.getElementById('unitDiagramInfo').innerText = "ตร.มม.";
+                document.getElementById('labelTotalWire').innerText = "พื้นที่สายไฟรวม:";
+                document.getElementById('unitTotalWire').innerText = "ตร.มม.";
+                document.getElementById('unitLimitArea').innerText = "ตร.มม.";
+                document.getElementById('labelTotalTray').innerText = "พื้นที่รางทั้งหมด:";
+                document.getElementById('unitTotalTray').innerText = "ตร.มม.";
+            } else {
+                fillInput.value = 25; // Cable tray เปลี่ยนมาใช้เผื่อมาตรฐานที่ 25%
+                fillHint.innerText = "(มาตรฐาน 25%)";
+                
+                document.getElementById('colHeaderValue').innerText = "เส้นผ่านศูนย์กลาง (มม.)";
+                document.getElementById('labelDiagramInfo').innerText = "ผลรวมเส้นผ่านศูนย์กลาง";
+                document.getElementById('unitDiagramInfo').innerText = "มม.";
+                document.getElementById('labelTotalWire').innerText = "ผลรวมเส้นผ่านศูนย์กลาง:";
+                document.getElementById('unitTotalWire').innerText = "มม.";
+                document.getElementById('unitLimitArea').innerText = "มม.";
+                document.getElementById('labelTotalTray').innerText = "ความกว้างรางทั้งหมด:";
+                document.getElementById('unitTotalTray').innerText = "มม.";
+            }
+
+            // เปลี่ยนข้อความบน mobile ด้วย
+            document.querySelectorAll('.wire-unit-label').forEach(label => {
+                label.innerText = type === 'wireway' ? "พื้นที่หน้าตัด (ตร.มม.)" : "เส้นผ่านศูนย์กลาง (มม.)";
+            });
+
+            // บังคับรีเซ็ตค่า manual และคำนวณใหม่ตามหน่วยใหม่
+            const rows = document.querySelectorAll('.wire-row');
+            rows.forEach(row => {
+                const id = row.id.replace('row-', '');
+                row.querySelector('.is-manual').value = "false";
+                updateRowValue(id);
+            });
+            
+            populateTraySizes();
+            calculate();
+        }
+
+        function addWireRow() {
+            rowIdCounter++;
+            const id = rowIdCounter;
+            const row = document.createElement('div');
+            row.className = "wire-row flex flex-wrap md:flex-nowrap gap-2 bg-white p-3 rounded-lg border border-gray-200 shadow-sm items-center";
+            row.id = `row-${id}`;
+            
+            const typeOptions = Object.keys(CABLE_DB).map(k => `<option value="${k}">${k}</option>`).join('');
+            const trayType = document.getElementById('trayType').value;
+            const unitLabel = trayType === 'wireway' ? "พื้นที่หน้าตัด (ตร.มม.)" : "เส้นผ่านศูนย์กลาง (มม.)";
+            
+            row.innerHTML = `
+                <div class="w-full md:w-1/4">
+                    <label class="md:hidden text-xs text-gray-500 mb-1 block">ชนิดสาย</label>
+                    <select onchange="updateSizeOptions(${id})" class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-indigo-500 bg-white border wire-type">
+                        ${typeOptions}
+                    </select>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <label class="md:hidden text-xs text-gray-500 mb-1 block">ขนาด (ตร.มม.)</label>
+                    <select onchange="updateRowValue(${id}); calculate();" class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-indigo-500 bg-white border wire-sqmm">
+                        <!-- Options injected by JS -->
+                    </select>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <label class="md:hidden text-xs text-gray-500 mb-1 block wire-unit-label">${unitLabel}</label>
+                    <input type="number" step="0.01" onchange="markManualEdit(${id}); calculate();" class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-indigo-500 border text-indigo-700 font-medium wire-unit-value">
+                    <input type="hidden" class="is-manual" value="false">
+                </div>
+                <div class="w-[85%] md:w-1/5">
+                    <label class="md:hidden text-xs text-gray-500 mb-1 block">จำนวน (เส้น)</label>
+                    <input type="number" value="1" min="1" onchange="calculate()" class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-indigo-500 border bg-white wire-qty">
+                </div>
+                <div class="w-[10%] md:w-[5%] flex justify-end items-end md:items-center pb-1 md:pb-0">
+                    <button onclick="document.getElementById('row-${id}').remove(); calculate();" class="text-gray-400 hover:text-red-500 transition mt-6 md:mt-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.getElementById('wireList').appendChild(row);
+            
+            updateSizeOptions(id);
+        }
+
+        function updateSizeOptions(id) {
+            const row = document.getElementById(`row-${id}`);
+            const type = row.querySelector('.wire-type').value;
+            const sizeSelect = row.querySelector('.wire-sqmm');
+            
+            // ดึงขนาดและเรียงจากน้อยไปมาก
+            const availableSizes = Object.keys(CABLE_DB[type]).sort((a, b) => parseFloat(a) - parseFloat(b));
+            sizeSelect.innerHTML = availableSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            
+            row.querySelector('.is-manual').value = "false";
+            updateRowValue(id);
+            calculate();
+        }
+
+        function updateRowValue(id) {
+            const row = document.getElementById(`row-${id}`);
+            if(!row) return;
+            const isManual = row.querySelector('.is-manual').value === "true";
+            if(isManual) return; 
+
+            const type = row.querySelector('.wire-type').value;
+            const sqmmStr = row.querySelector('.wire-sqmm').value; 
+            const diameter = CABLE_DB[type][sqmmStr] || 0;
+            const trayType = document.getElementById('trayType').value;
+            
+            let valueToShow = 0;
+            if (trayType === 'wireway') {
+                // คำนวณเป็นพื้นที่หน้าตัด (Area)
+                valueToShow = Math.PI * Math.pow((diameter / 2), 2);
+            } else {
+                // ใช้เส้นผ่านศูนย์กลางโดยตรง (Diameter)
+                valueToShow = diameter;
+            }
+            
+            row.querySelector('.wire-unit-value').value = valueToShow.toFixed(2);
+        }
+
+        function markManualEdit(id) {
+            document.getElementById(`row-${id}`).querySelector('.is-manual').value = "true";
+        }
+
+        // --- 3. ฟังก์ชันคำนวณหลัก ---
+        function calculate() {
+            let totalWireValue = 0; // แทนพื้นที่หน้าตัด หรือ แทนเส้นผ่านศูนย์กลางรวม
+            let totalQty = 0;
+            const trayType = document.getElementById('trayType').value;
+            
+            // 1. รวมค่าจากสายไฟทุกเส้น (พื้นที่ หรือ เส้นผ่านศูนย์กลาง)
+            const rows = document.querySelectorAll('.wire-row');
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.wire-qty').value) || 0;
+                const unitValue = parseFloat(row.querySelector('.wire-unit-value').value) || 0;
+                
+                totalWireValue += (qty * unitValue);
+                totalQty += qty;
+            });
+
+            // 2. ดึงค่าคอนฟิก
+            const maxFillPercent = parseFloat(document.getElementById('maxFill').value) || (trayType === 'wireway' ? 20 : 25);
+            const traySizeSelect = document.getElementById('traySizeSelect').value;
+            const sizes = TRAY_SIZES[trayType];
+
+            let selectedTray = null;
+            let requiredValueForLimit = 0;
+            
+            // 3. คำนวณหาค่าที่ต้องการเพื่อไม่ให้เกิน Limit 
+            if (trayType === 'wireway') {
+                // หารเพื่อหาพื้นที่รวมตามเปอร์เซ็นต์ (เช่น 20%)
+                requiredValueForLimit = totalWireValue / (maxFillPercent / 100);
+            } else {
+                // Cable Tray: คูณเพื่อเผื่อพื้นที่ (เช่น เผื่อ 25% คือคูณ 1.25)
+                requiredValueForLimit = totalWireValue * (1 + (maxFillPercent / 100));
+            }
+
+            // 4. ค้นหาขนาดออโต้ หรืออ้างอิงขนาดที่เลือก
+            if (traySizeSelect === 'auto') {
+                for (let i = 0; i < sizes.length; i++) {
+                    const capacity = trayType === 'wireway' ? sizes[i].area : sizes[i].w;
+                    if (capacity >= requiredValueForLimit) {
+                        selectedTray = sizes[i]; // เลือกขนาดแรกที่ความจุกว้าง/พื้นที่ครอบคลุม
+                        break;
+                    }
+                }
+            } else {
+                selectedTray = sizes[parseInt(traySizeSelect)];
+            }
+
+            // --- 5. แสดงผล ---
+            const resSizeEl = document.getElementById('resSize');
+            const statusBox = document.getElementById('statusBox');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+
+            document.getElementById('resTotalWireArea').innerText = totalWireValue.toFixed(2);
+            document.getElementById('resLimitText').innerText = maxFillPercent;
+            document.getElementById('resTotalQty').innerText = totalQty;
+
+            document.getElementById('diagramWireArea').innerText = totalWireValue.toFixed(2);
+            document.getElementById('resLimitArea').innerText = requiredValueForLimit.toFixed(2);
+
+            let actualPercent = 0;
+            let isExceeded = false;
+            const maxCapacityOfLargest = trayType === 'wireway' ? sizes[sizes.length-1].area : sizes[sizes.length-1].w;
+
+            if (totalWireValue === 0) {
+                resSizeEl.innerText = "-";
+                resSizeEl.className = "text-4xl md:text-5xl font-bold tracking-tight text-gray-500";
+                document.getElementById('resPercent').innerText = "0.00%";
+                document.getElementById('resPercent').className = "text-lg font-bold text-gray-500";
+                document.getElementById('resTotalTrayArea').innerText = "0.00";
+                statusBox.classList.add('hidden');
+                document.getElementById('diagramTrayName').innerText = "กรุณาเพิ่มสายไฟฟ้า";
+                updateRectangle(0, '#e5e7eb');
+                return;
+            }
+
+            if (traySizeSelect === 'auto') {
+                if (selectedTray) {
+                    const capacity = trayType === 'wireway' ? selectedTray.area : selectedTray.w;
+                    actualPercent = (totalWireValue / capacity) * 100;
+                } else {
+                    actualPercent = (totalWireValue / maxCapacityOfLargest) * 100;
+                    isExceeded = true;
+                }
+            } else {
+                const capacity = trayType === 'wireway' ? selectedTray.area : selectedTray.w;
+                actualPercent = (totalWireValue / capacity) * 100;
+                
+                // ตรวจสอบความถูกต้องกรณีเลือกเอง (Manual)
+                if (trayType === 'wireway') {
+                    if (actualPercent > maxFillPercent) {
+                        isExceeded = true;
+                    }
+                } else {
+                    // Cable Tray: ความกว้างที่เลือก ต้องมากกว่าหรือเท่ากับ ความกว้างที่ต้องการรวมเผื่อ
+                    if (capacity < requiredValueForLimit) {
+                        isExceeded = true;
+                    }
+                }
+            }
+
+            if (!isExceeded && selectedTray) {
+                // PASS
+                resSizeEl.innerText = selectedTray.name;
+                resSizeEl.className = "text-3xl md:text-4xl font-bold tracking-tight text-white";
+                
+                const capacityStr = trayType === 'wireway' ? selectedTray.area.toLocaleString() : selectedTray.w.toLocaleString();
+                document.getElementById('resTotalTrayArea').innerText = capacityStr;
+                document.getElementById('diagramTrayName').innerText = (trayType === 'wireway' ? 'Wireway ' : 'Cable Tray ') + selectedTray.name;
+                
+                statusBox.classList.remove('hidden', 'bg-red-900/30', 'border-red-500/30');
+                statusBox.classList.add('bg-emerald-900/30', 'border-emerald-500/30');
+                statusTitle.innerText = "อยู่ในเกณฑ์มาตรฐาน";
+                statusTitle.className = "font-medium text-emerald-400 text-sm";
+                statusDesc.innerText = "ขนาดรางและจำนวนสายไฟเหมาะสมและเป็นไปตามข้อกำหนด";
+                statusBox.querySelector('svg').className.baseVal = "h-5 w-5 text-emerald-400 shrink-0 mt-0.5";
+                
+                document.getElementById('resPercent').className = "text-lg font-bold text-emerald-400";
+                updateRectangle(actualPercent, '#34d399'); 
+
+            } else {
+                // FAIL
+                if (traySizeSelect === 'auto') {
+                    resSizeEl.innerText = "เกินขนาดสูงสุด!";
+                    document.getElementById('resTotalTrayArea').innerText = maxCapacityOfLargest.toLocaleString() + " (Max)";
+                    document.getElementById('diagramTrayName').innerText = "ต้องขยายขนาดหรือเพิ่มจำนวนราง";
+                    statusDesc.innerText = `ต้องใช้รางที่ใหญ่กว่า ${sizes[sizes.length-1].name} หรือแยกเดินหลายราง`;
+                } else {
+                    resSizeEl.innerText = selectedTray.name;
+                    const capacityStr = trayType === 'wireway' ? selectedTray.area.toLocaleString() : selectedTray.w.toLocaleString();
+                    document.getElementById('resTotalTrayArea').innerText = capacityStr;
+                    document.getElementById('diagramTrayName').innerText = (trayType === 'wireway' ? 'Wireway ' : 'Cable Tray ') + selectedTray.name;
+                    
+                    if (trayType === 'wireway') {
+                        statusDesc.innerText = `พื้นที่ใช้งานจริง (${actualPercent.toFixed(2)}%) เกินมาตรฐานที่กำหนด (${maxFillPercent}%)`;
+                    } else {
+                        statusDesc.innerText = `ความกว้างรางไม่เพียงพอ (ต้องการขั้นต่ำ ${requiredValueForLimit.toFixed(2)} มม. รวมเผื่อ ${maxFillPercent}%)`;
+                    }
+                }
+                
+                resSizeEl.className = "text-3xl md:text-4xl font-bold tracking-tight text-red-400";
+
+                statusBox.classList.remove('hidden', 'bg-emerald-900/30', 'border-emerald-500/30');
+                statusBox.classList.add('bg-red-900/30', 'border-red-500/30');
+                statusTitle.innerText = "เกินเกณฑ์มาตรฐาน";
+                statusTitle.className = "font-medium text-red-400 text-sm";
+                statusBox.querySelector('svg').className.baseVal = "h-5 w-5 text-red-400 shrink-0 mt-0.5";
+
+                document.getElementById('resPercent').className = "text-lg font-bold text-red-400";
+                updateRectangle(actualPercent, '#f87171');
+            }
+
+            document.getElementById('resPercent').innerText = actualPercent.toFixed(2) + "%";
+            document.getElementById('diagramPercent').innerText = actualPercent.toFixed(1) + "%";
+        }
+
+        // --- 6. ฟังก์ชันจัดการ Animation สี่เหลี่ยม (U-Shape Tray) ---
+        function updateRectangle(percent, color) {
+            const rect = document.getElementById('diagramFill');
+            const displayPercent = percent > 100 ? 100 : percent;
+            
+            const maxHeight = 76;
+            const h = (displayPercent / 100) * maxHeight;
+            const y = 86 - h;
+            
+            rect.setAttribute('height', h);
+            rect.setAttribute('y', y);
+            rect.style.fill = color;
+        }
+
+        // เริ่มต้นทำงาน (Init)
+        populateTraySizes();
+        addWireRow();
+        handleTypeChange();
+
+    </script>
+</body>
+</html>
         </div>
 
     </main>
