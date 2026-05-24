@@ -1,50 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คำนวณขนาดสาย - For_Engineer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style> 
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background-color: #f3f4f6; 
-        } 
-    </style>
-</head>
-<body class="flex flex-col min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
-        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
-            <span>⚡ For_Engineer</span>
-        </div>
-    </header>
-
-    <!-- Content -->
-    <!-- จุดที่แก้ไขที่ 1: เปลี่ยนความกว้างจาก max-w-5xl เป็น max-w-7xl (กว้างขึ้น) หรือจะเปลี่ยนเป็น w-full ล้วนๆ เลยก็ได้ -->
-    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
-        
-        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า จัดให้อยู่บรรทัดเดียวกันเพื่อประหยัดพื้นที่ -->
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
-                โปรแกรมคำนวณขนาดสาย
-            </h1>
-            
-            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md">
-                ← กลับหน้าแรก
-            </a>
-        </div>
-
-        <!-- จุดที่แก้ไขที่ 2: ลบกล่อง <div class="bg-white p-8..."> ออกไปเลย -->
-        <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
-        
-        <div class="w-full">
-            <!DOCTYPE html>
-<html lang="th">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>โปรแกรมคำนวณขนาดสายไฟฟ้า</title>
@@ -274,6 +230,11 @@
       '76-80': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.41 }
     };
 
+    // ================= โครงสร้างตารางพิกัดกระแสสายไฟ =================
+    // g = กลุ่ม (1,2,3,4,5,6,7) | 2c/3c = 2ตัวนำ(1Phase)/3ตัวนำ(3Phase) | s/m = Single/Multi Core
+    // g7 = แบบบันได (ไม่มีฝาปิด), g7s = แบบด้านล่างทึบ (ไม่มีฝาปิด), g7c = แบบบันไดและด้านล่างทึบ (มีฝาปิด)
+
+    // 1. ตารางพิกัดกระแสสายไฟ PVC 70°C
     const ampacityPVC70 = [
       { size: 1,   g1_2c_s: 10,  g1_2c_m: 10,  g1_3c_s: 9,   g1_3c_m: 9,   g2_2c_s: 12,  g2_2c_m: 11,  g2_3c_s: 10,  g2_3c_m: 10,  g3_2c_s: 14,  g3_2c_m: 13,  g3_3c_s: 13,  g3_3c_m: 12,  g4_2c_s: 15,  g4_2c_m: null, g4_3c_s: 15,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 14,  g7_2c_m: 13,  g7_3c_s: 13,  g7_3c_m: 11, g7s_2c_s: 13,  g7s_2c_m: 12,  g7s_3c_s: 12,  g7s_3c_m: 11, g7c_2c_s: 13, g7c_2c_m: 12, g7c_3c_s: 12, g7c_3c_m: 11 },
       { size: 1.5, g1_2c_s: 13,  g1_2c_m: 12,  g1_3c_s: 12,  g1_3c_m: 11,  g2_2c_s: 15,  g2_2c_m: 14,  g2_3c_s: 13,  g2_3c_m: 13,  g3_2c_s: 18,  g3_2c_m: 17,  g3_3c_s: 16,  g3_3c_m: 16,  g4_2c_s: 20,  g4_2c_m: null, g4_3c_s: 20,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 18,  g7_2c_m: 17,  g7_3c_s: 16,  g7_3c_m: 15, g7s_2c_s: 17,  g7s_2c_m: 16,  g7s_3c_s: 15,  g7s_3c_m: 14, g7c_2c_s: 16, g7c_2c_m: 15, g7c_3c_s: 15, g7c_3c_m: 14 },
@@ -314,8 +275,30 @@
       { size: 185, g1_2c_s: 271, g1_2c_m: 232, g1_3c_s: 240, g1_3c_m: 212, g2_2c_s: 333, g2_2c_m: 268, g2_3c_s: 284, g2_3c_m: 232, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 444, g4_2c_m: null, g4_3c_s: 444, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 512, g7_2c_m: 463, g7_3c_s: 479, g7_3c_m: 412, g7s_2c_s: 412, g7s_2c_m: 358, g7s_3c_s: 359, g7s_3c_m: 317, g7c_2c_s: 388, g7c_2c_m: 339, g7c_3c_s: 364, g7c_3c_m: 311 },
       { size: 240, g1_2c_s: 318, g1_2c_m: 271, g1_3c_s: 281, g1_3c_m: 248, g2_2c_s: 391, g2_2c_m: 313, g2_3c_s: 331, g2_3c_m: 270, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 530, g4_2c_m: null, g4_3c_s: 530, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 607, g7_2c_m: 546, g7_3c_s: 569, g7_3c_m: 484, g7s_2c_s: 484, g7s_2c_m: 419, g7s_3c_s: 416, g7s_3c_m: 364, g7c_2c_s: 461, g7c_2c_m: 400, g7c_3c_s: 433, g7c_3c_m: 367 },
       { size: 300, g1_2c_s: 364, g1_2c_m: 311, g1_3c_s: 322, g1_3c_m: 283, g2_2c_s: 447, g2_2c_m: 359, g2_3c_s: 377, g2_3c_m: 308, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 611, g4_2c_m: null, g4_3c_s: 611, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 698, g7_2c_m: 629, g7_3c_s: 655, g7_3c_m: 558, g7s_2c_s: 558, g7s_2c_m: 479, g7s_3c_s: 477, g7s_3c_m: 415, g7c_2c_s: 531, g7c_2c_m: 459, g7c_3c_s: 499, g7c_3c_m: 422 },
-      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666,  g7s_2c_m: 599,  g7s_3c_s: 626,  g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
-      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768,  g7s_2c_m: 692,  g7s_3c_s: 722,  g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
+      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666, g7s_2c_m: 599, g7s_3c_s: 626, g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
+      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768, g7s_2c_m: 692, g7s_3c_s: 722, g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
+    ];
+
+    const ampacityXLPE = [
+      { size: 1,   g1_2c_s: 15,  g1_2c_m: 14,  g1_3c_s: 13,  g1_3c_m: 12,  g2_2c_s: 18,  g2_2c_m: 15,  g2_3c_s: 15,  g2_3c_m: 13,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 21,  g4_2c_m: null, g4_3c_s: 21,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 17, g7_2c_m: 17, g7_3c_s: 16, g7_3c_m: 16, g7s_2c_s: 20,  g7s_2c_m: 17,  g7s_3c_s: 17,  g7s_3c_m: 16, g7c_2c_s: 18, g7c_2c_m: 16, g7c_3c_s: 17, g7c_3c_m: 15 },
+      { size: 1.5, g1_2c_s: 20,  g1_2c_m: 18,  g1_3c_s: 17,  g1_3c_m: 15,  g2_2c_s: 23,  g2_2c_m: 19,  g2_3c_s: 20,  g2_3c_m: 17,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 28,  g4_2c_m: null, g4_3c_s: 28,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 23, g7_2c_m: 23, g7_3c_s: 21, g7_3c_m: 21, g7s_2c_s: 26,  g7s_2c_m: 23,  g7s_3c_s: 22,  g7s_3c_m: 21, g7c_2c_s: 24, g7c_2c_m: 22, g7c_3c_s: 23, g7c_3c_m: 20 },
+      { size: 2.5, g1_2c_s: 27,  g1_2c_m: 24,  g1_3c_s: 24,  g1_3c_m: 21,  g2_2c_s: 31,  g2_2c_m: 26,  g2_3c_s: 27,  g2_3c_m: 23,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 39,  g4_2c_m: null, g4_3c_s: 39,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 34, g7_2c_m: 31, g7_3c_s: 31, g7_3c_m: 28, g7s_2c_s: 34,  g7s_2c_m: 31,  g7s_3c_s: 29,  g7s_3c_m: 28, g7c_2c_s: 32, g7c_2c_m: 29, g7c_3c_s: 30, g7c_3c_m: 27 },
+      { size: 4,   g1_2c_s: 35,  g1_2c_m: 31,  g1_3c_s: 31,  g1_3c_m: 28,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 30,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42, g7_2c_m: 42, g7_3c_s: 38, g7_3c_m: 38, g7s_2c_s: 45,  g7s_2c_m: 41,  g7s_3c_s: 38,  g7s_3c_m: 37, g7c_2c_s: 43, g7c_2c_m: 39, g7c_3c_s: 40, g7c_3c_m: 36 },
+      { size: 6,   g1_2c_s: 45,  g1_2c_m: 40,  g1_3c_s: 40,  g1_3c_m: 35,  g2_2c_s: 52,  g2_2c_m: 43,  g2_3c_s: 45,  g2_3c_m: 38,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 54, g7_2c_m: 54, g7_3c_s: 49, g7_3c_m: 49, g7s_2c_s: 57,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 47, g7c_2c_s: 55, g7c_2c_m: 49, g7c_3c_s: 52, g7c_3c_m: 46 },
+      { size: 10,  g1_2c_s: 61,  g1_2c_m: 53,  g1_3c_s: 54,  g1_3c_m: 47,  g2_2c_s: 71,  g2_2c_m: 59,  g2_3c_s: 60,  g2_3c_m: 51,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 90,  g4_2c_m: null, g4_3c_s: 90,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 74, g7_2c_m: 74, g7_3c_s: 67, g7_3c_m: 67, g7s_2c_s: 78,  g7s_2c_m: 71,  g7s_3c_s: 67,  g7s_3c_m: 63, g7c_2c_s: 74, g7c_2c_m: 67, g7c_3c_s: 70, g7c_3c_m: 62 },
+      { size: 16,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 62,  g2_2c_s: 93,  g2_2c_m: 77,  g2_3c_s: 79,  g2_3c_m: 67,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 120, g4_2c_m: null, g4_3c_s: 120, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 98, g7_2c_m: 98, g7_3c_s: 89, g7_3c_m: 89, g7s_2c_s: 102, g7s_2c_m: 93, g7s_3c_s: 89, g7s_3c_m: 83, g7c_2c_s: 99, g7c_2c_m: 89, g7c_3c_s: 93, g7c_3c_m: 83 },
+      { size: 25,  g1_2c_s: 105, g1_2c_m: 91,  g1_3c_s: 93,  g1_3c_m: 81,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 104, g2_3c_m: 88,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 129, g7_2c_m: 129, g7_3c_s: 117, g7_3c_m: 117, g7s_2c_s: 135, g7s_2c_m: 123, g7s_3c_s: 117, g7s_3c_m: 108, g7c_2c_s: 131, g7c_2c_m: 116, g7c_3c_s: 123, g7c_3c_m: 108 },
+      { size: 35,  g1_2c_s: 128, g1_2c_m: 111, g1_3c_s: 113, g1_3c_m: 98,  g2_2c_s: 149, g2_2c_m: 123, g2_3c_s: 127, g2_3c_m: 107, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 158, g7_2c_m: 158, g7_3c_s: 143, g7_3c_m: 143, g7s_2c_s: 165, g7s_2c_m: 149, g7s_3c_s: 143, g7s_3c_m: 131, g7c_2c_s: 161, g7c_2c_m: 142, g7c_3c_s: 151, g7c_3c_m: 132 },
+      { size: 50,  g1_2c_s: 154, g1_2c_m: 133, g1_3c_s: 136, g1_3c_m: 118, g2_2c_s: 180, g2_2c_m: 147, g2_3c_s: 153, g2_3c_m: 128, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 232, g4_2c_m: null, g4_3c_s: 232, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 192, g7_2c_m: 192, g7_3c_s: 174, g7_3c_m: 174, g7s_2c_s: 199, g7s_2c_m: 178, g7s_3c_s: 174, g7s_3c_m: 158, g7c_2c_s: 195, g7c_2c_m: 171, g7c_3c_s: 183, g7c_3c_m: 158 },
+      { size: 70,  g1_2c_s: 194, g1_2c_m: 167, g1_3c_s: 170, g1_3c_m: 148, g2_2c_s: 226, g2_2c_m: 184, g2_3c_s: 193, g2_3c_m: 162, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 292, g4_2c_m: null, g4_3c_s: 292, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 243, g7_2c_m: 243, g7_3c_s: 220, g7_3c_m: 220, g7s_2c_s: 253, g7s_2c_m: 226, g7s_3c_s: 220, g7s_3c_m: 198, g7c_2c_s: 248, g7c_2c_m: 218, g7c_3c_s: 233, g7c_3c_m: 202 },
+      { size: 95,  g1_2c_s: 233, g1_2c_m: 200, g1_3c_s: 205, g1_3c_m: 177, g2_2c_s: 272, g2_2c_m: 221, g2_3c_s: 233, g2_3c_m: 194, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 354, g4_2c_m: null, g4_3c_s: 354, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 295, g7_2c_m: 295, g7_3c_s: 267, g7_3c_m: 267, g7s_2c_s: 308, g7s_2c_m: 273, g7s_3c_s: 267, g7s_3c_m: 241, g7c_2c_s: 301, g7c_2c_m: 263, g7c_3c_s: 283, g7c_3c_m: 243 },
+      { size: 120, g1_2c_s: 268, g1_2c_m: 230, g1_3c_s: 235, g1_3c_m: 203, g2_2c_s: 313, g2_2c_m: 252, g2_3c_s: 268, g2_3c_m: 222, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 410, g4_2c_m: null, g4_3c_s: 410, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 341, g7_2c_m: 341, g7_3c_s: 309, g7_3c_m: 309, g7s_2c_s: 356, g7s_2c_m: 315, g7s_3c_s: 309, g7s_3c_m: 277, g7c_2c_s: 349, g7c_2c_m: 304, g7c_3c_s: 328, g7c_3c_m: 281 },
+      { size: 150, g1_2c_s: 305, g1_2c_m: 261, g1_3c_s: 267, g1_3c_m: 230, g2_2c_s: 355, g2_2c_m: 285, g2_3c_s: 304, g2_3c_m: 251, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 471, g4_2c_m: null, g4_3c_s: 471, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 388, g7_2c_m: 388, g7_3c_s: 351, g7_3c_m: 351, g7s_2c_s: 405, g7s_2c_m: 358, g7s_3c_s: 351, g7s_3c_m: 314, g7c_2c_s: 400, g7c_2c_m: 347, g7c_3c_s: 376, g7c_3c_m: 321 },
+      { size: 185, g1_2c_s: 345, g1_2c_m: 294, g1_3c_s: 301, g1_3c_m: 259, g2_2c_s: 402, g2_2c_m: 321, g2_3c_s: 343, g2_3c_m: 282, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 538, g4_2c_m: null, g4_3c_s: 538, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 444, g7_2c_m: 444, g7_3c_s: 402, g7_3c_m: 402, g7s_2c_s: 463, g7s_2c_m: 406, g7s_3c_s: 402, g7s_3c_m: 358, g7c_2c_s: 457, g7c_2c_m: 395, g7c_3c_s: 430, g7c_3c_m: 365 },
+      { size: 240, g1_2c_s: 404, g1_2c_m: 342, g1_3c_s: 351, g1_3c_m: 301, g2_2c_s: 470, g2_2c_m: 372, g2_3c_s: 399, g2_3c_m: 327, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 641, g4_2c_m: null, g4_3c_s: 641, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 524, g7_2c_m: 524, g7_3c_s: 474, g7_3c_m: 474, g7s_2c_s: 546, g7s_2c_m: 477, g7s_3c_s: 474, g7s_3c_m: 419, g7c_2c_s: 541, g7c_2c_m: 464, g7c_3c_s: 508, g7c_3c_m: 429 },
+      { size: 300, g1_2c_s: 461, g1_2c_m: 390, g1_3c_s: 400, g1_3c_m: 342, g2_2c_s: 535, g2_2c_m: 422, g2_3c_s: 453, g2_3c_m: 371, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 739, g4_2c_m: null, g4_3c_s: 739, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 604, g7_2c_m: 604, g7_3c_s: 547, g7_3c_m: 547, g7s_2c_s: 629, g7s_2c_m: 547, g7s_3c_s: 547, g7s_3c_m: 479, g7c_2c_s: 624, g7c_2c_m: 532, g7c_3c_s: 586, g7c_3c_m: 492 },
+      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 719, g7_2c_m: 719, g7_3c_s: 650, g7_3c_m: 650, g7s_2c_s: 666, g7s_2c_m: 599, g7s_3c_s: 626, g7s_3c_m: 528, g7c_2c_s: 744, g7c_2c_m: null, g7c_3c_s: 699, g7c_3c_m: null },
+      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 827, g7_2c_m: 827, g7_3c_s: 749, g7_3c_m: 749, g7s_2c_s: 768, g7s_2c_m: 692, g7s_3c_s: 722, g7s_3c_m: 609, g7c_2c_s: 859, g7c_2c_m: null, g7c_3c_s: 807, g7c_3c_m: null }
     ];
 
     // ================= State & Logic =================
@@ -342,7 +325,7 @@
         cgSelect.appendChild(opt);
       });
 
-      // Setup Install Group Options (กลุ่ม 7 ถูกซ่อนไว้ตามคำขอ)
+      // Setup Install Group Options
       const igSelect = document.getElementById('installGroup');
       const installGroups = [
         'กลุ่ม 1: เดินช่องเดินสายภายในฝ้าเพดาน/ผนังกันไฟ',
@@ -350,8 +333,8 @@
         'กลุ่ม 3: เดินเกาะผนัง/เพดาน ไม่มีสิ่งปิดหุ้ม',
         'กลุ่ม 4: เดินบนฉนวนลูกถ้วยในอากาศ',
         'กลุ่ม 5: เดินในท่อฝังดิน',
-        'กลุ่ม 6: ฝังดินโดยตรง'
-        // 'กลุ่ม 7: วางบนรางเคเบิล (Cable Tray)' // ซ่อนไว้
+        'กลุ่ม 6: ฝังดินโดยตรง',
+        'กลุ่ม 7: วางบนรางเคเบิล (Cable Tray)'
       ];
       installGroups.forEach(ig => {
         let opt = document.createElement('option');
@@ -542,10 +525,5 @@
     // Initialize the app when DOM is fully loaded
     window.addEventListener('DOMContentLoaded', init);
   </script>
-</body>
-</html>
-        </div>
-
-    </main>
 </body>
 </html>
