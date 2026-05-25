@@ -42,530 +42,489 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>โปรแกรมคำนวณขนาดสายไฟฟ้า</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Sarabun', sans-serif; }
-  </style>
-</head>
-<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณขนาดสายไฟฟ้า - For_Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style> 
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f3f4f6; 
+        } 
+    </style>
 
-  <div class="max-w-5xl mx-auto space-y-6">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Header & Diagram -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <div class="flex flex-col sm:flex-row justify-center items-center mb-6 gap-4">
-        <h1 class="text-2xl font-bold text-slate-800">โปรแกรมคำนวณขนาดสายไฟฟ้า</h1>
-      </div>
-      
-      <!-- Diagram แสดงผล -->
-      <div class="flex flex-col md:flex-row items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600">
-        <div class="flex flex-col items-center bg-blue-100 p-4 rounded-lg border border-blue-200 w-full md:w-auto mb-2 md:mb-0 shadow-sm">
-          <span class="text-blue-800 font-bold text-xl">LP</span>
-          <span class="text-slate-700 mt-1" id="displayVoltage">400 V</span>
+    <!-- Babel (สำหรับการแปลง JSX ใน Browser ให้ทำงานบน GitHub Pages ได้ทันที) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+            <span>⚡ For_Engineer</span>
         </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
         
-        <div class="text-xl text-slate-400 hidden md:block">➔</div>
-        
-        <div class="flex flex-col items-center p-3 border-2 border-dashed border-blue-300 bg-white rounded-lg w-full md:w-auto mb-2 md:mb-0 relative">
-          <div class="absolute -top-3 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full">CB</div>
-          <span class="font-bold text-slate-800 text-lg mt-2" id="displayCbSize">- A</span>
+        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
+                โปรแกรมคำนวณขนาดสายไฟฟ้า
+            </h1>
+            
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md whitespace-nowrap">
+                ← กลับหน้าแรก
+            </a>
         </div>
 
-        <div class="text-xl text-slate-400 hidden md:block">➔</div>
+        <!-- React Root Container -->
+        <div id="root" class="w-full"></div>
 
-        <div class="flex flex-col items-center p-4 bg-white border border-slate-200 rounded-lg w-full md:w-auto mb-2 md:mb-0 flex-1 mx-0 md:mx-4 shadow-sm text-center">
-          <span class="font-bold text-slate-700 text-base mb-1">
-            สาย <span id="displayCableSize">...</span> mm² (<span id="displayInsulation">PVC 70°C</span> <span id="displayCoreType">Single Core</span>)
-          </span>
-          <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md" id="displayInstallGroup">กลุ่ม 1</span>
-        </div>
+    </main>
 
-        <div class="text-xl text-slate-400 hidden md:block">➔</div>
+    <!-- React Application Code -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        <div class="flex flex-col items-center bg-red-50 p-4 rounded-lg border border-red-200 w-full md:w-auto shadow-sm">
-          <span class="text-red-700 font-bold text-xl">Load</span>
-          <span class="text-slate-700 mt-1"><span id="displayLoadCurrent">0</span> A</span>
-        </div>
-      </div>
-    </div>
+        // ================= ข้อมูลตารางอ้างอิง (Database) =================
 
-    <!-- Section 1: System & Load -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-        <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
-        ข้อมูลระบบไฟฟ้าและโหลด (System & Load)
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">ระบบไฟฟ้า (Phase)</label>
-          <select id="phase" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            <option value="AC 3-Phase" selected>AC 3-Phase</option>
-            <option value="AC 1-Phase">AC 1-Phase</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">แรงดันไฟฟ้า (Voltage - V)</label>
-          <input type="number" id="voltage" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" value="400" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">กระแสโหลด (Current - A)</label>
-          <input type="number" id="loadCurrent" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-yellow-50" placeholder="กรอกกระแส..." />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">ขนาดเซอร์กิตเบรกเกอร์ (CB - A)</label>
-          <input type="number" id="cbSize" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-green-50" placeholder="กรอกขนาด CB..." />
-        </div>
-      </div>
-    </div>
+        // ตารางที่ 5-8: ตัวคูณปรับค่าขนาดกระแสเนื่องจากจำนวนกลุ่มวงจร (Cg)
+        const groupDerating = {
+          '1': { enclosed: 1.00, surface: 1.00 },
+          '2': { enclosed: 0.80, surface: 0.85 },
+          '3': { enclosed: 0.70, surface: 0.79 },
+          '4': { enclosed: 0.65, surface: 0.75 },
+          '5': { enclosed: 0.60, surface: 0.73 },
+          '6': { enclosed: 0.57, surface: 0.72 },
+          '7': { enclosed: 0.54, surface: 0.72 },
+          '8': { enclosed: 0.52, surface: 0.71 },
+          '9': { enclosed: 0.50, surface: 0.70 },
+          '10-12': { enclosed: 0.45, surface: 0.70 },
+          '13-16': { enclosed: 0.41, surface: 0.70 },
+          '17-20': { enclosed: 0.38, surface: 0.70 }
+        };
 
-    <!-- Section 2: Cable & Installation -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-        <div class="w-1.5 h-5 bg-green-500 rounded-full"></div>
-        ข้อมูลสายและการติดตั้ง (Cable & Installation)
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">ลักษณะการติดตั้ง</label>
-          <select id="installType" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
-            <option value="เดินอากาศ" selected>เดินอากาศ</option>
-            <option value="เดินใต้ดิน">เดินใต้ดิน</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">ฉนวน (Material)</label>
-          <select id="insulation" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
-            <option value="PVC 70°C" selected>PVC 70°C</option>
-            <option value="PVC 90°C">PVC 90°C</option>
-            <option value="XLPE">XLPE</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">แกน (Core Type)</label>
-          <select id="coreType" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
-            <option value="Single Core" selected>Single Core</option>
-            <option value="Multi Core">Multi Core</option>
-          </select>
-        </div>
-        <div class="md:col-span-3">
-          <label class="block text-sm font-medium text-slate-700 mb-1">กลุ่มการติดตั้ง (Installation Group)</label>
-          <select id="installGroup" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 text-sm md:text-base">
-            <!-- Options populated by JS -->
-          </select>
-        </div>
+        // ตารางที่ 5-43 ตัวคูณปรับค่าเนื่องจากอุณหภูมิโดยรอบ (เมื่อเดินอากาศ)
+        const tempDeratingAir = {
+          '11-15': { 'PVC 70°C': 1.34, 'PVC 90°C': null, 'XLPE': 1.23 },
+          '16-20': { 'PVC 70°C': 1.29, 'PVC 90°C': null, 'XLPE': 1.19 },
+          '21-25': { 'PVC 70°C': 1.22, 'PVC 90°C': null, 'XLPE': 1.14 },
+          '26-30': { 'PVC 70°C': 1.15, 'PVC 90°C': null, 'XLPE': 1.10 },
+          '31-35': { 'PVC 70°C': 1.08, 'PVC 90°C': 1.00, 'XLPE': 1.05 },
+          '36-40': { 'PVC 70°C': 1.00, 'PVC 90°C': 1.00, 'XLPE': 1.00 },
+          '41-45': { 'PVC 70°C': 0.91, 'PVC 90°C': 1.00, 'XLPE': 0.96 },
+          '46-50': { 'PVC 70°C': 0.82, 'PVC 90°C': 1.00, 'XLPE': 0.90 },
+          '51-55': { 'PVC 70°C': 0.70, 'PVC 90°C': 0.96, 'XLPE': 0.84 },
+          '56-60': { 'PVC 70°C': 0.57, 'PVC 90°C': 0.83, 'XLPE': 0.78 },
+          '61-65': { 'PVC 70°C': null, 'PVC 90°C': 0.67, 'XLPE': 0.71 },
+          '66-70': { 'PVC 70°C': null, 'PVC 90°C': 0.47, 'XLPE': 0.64 },
+          '71-75': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.55 },
+          '76-80': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.45 }
+        };
 
-        <!-- แสดงตัวเลือก "ลักษณะรางเคเบิ้ล" เฉพาะเมื่อเลือกกลุ่ม 7 -->
-        <div id="trayTypeContainer" class="md:col-span-3" style="display: none;">
-          <label class="block text-sm font-medium text-slate-700 mb-1">ลักษณะรางเคเบิ้ล</label>
-          <select id="trayType" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 text-sm md:text-base">
-            <option value="รางเคเบิลแบบบันได (ไม่มีฝาปิด)" selected>รางเคเบิลแบบบันได (ไม่มีฝาปิด)</option>
-            <option value="รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)">รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)</option>
-            <option value="รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)">รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)</option>
-          </select>
-        </div>
-        
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">อุณหภูมิที่ติดตั้ง (°C)</label>
-            <div class="flex gap-3">
-              <select id="temperature" class="flex-1 border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
-                <!-- Options populated by JS -->
-              </select>
-              <div class="flex flex-col justify-center bg-white px-4 border border-slate-200 rounded-lg min-w-[100px] text-center">
-                <span class="text-[10px] text-slate-400">ตัวคูณ Ct</span>
-                <span id="displayCt" class="font-bold text-blue-600">1.00</span>
-              </div>
-            </div>
-            <p id="displayCtError" class="text-xs text-red-500 mt-1 hidden">* ไม่มีพิกัดอุณหภูมินี้สำหรับฉนวนที่เลือก</p>
-          </div>
+        // ตารางที่ 5-44 ตัวคูณปรับค่าเนื่องจากอุณหภูมิโดยรอบ (เมื่อเดินใต้ดิน)
+        const tempDeratingUnderground = {
+          '11-15': { 'PVC 70°C': 1.18, 'PVC 90°C': 1.18, 'XLPE': 1.12 },
+          '16-20': { 'PVC 70°C': 1.12, 'PVC 90°C': 1.12, 'XLPE': 1.08 },
+          '21-25': { 'PVC 70°C': 1.07, 'PVC 90°C': 1.07, 'XLPE': 1.03 },
+          '26-30': { 'PVC 70°C': 1.00, 'PVC 90°C': 1.00, 'XLPE': 1.00 },
+          '31-35': { 'PVC 70°C': 0.94, 'PVC 90°C': 0.94, 'XLPE': 0.96 },
+          '36-40': { 'PVC 70°C': 0.87, 'PVC 90°C': 0.87, 'XLPE': 0.91 },
+          '41-45': { 'PVC 70°C': 0.80, 'PVC 90°C': 0.80, 'XLPE': 0.86 },
+          '46-50': { 'PVC 70°C': 0.71, 'PVC 90°C': 0.71, 'XLPE': 0.82 },
+          '51-55': { 'PVC 70°C': 0.62, 'PVC 90°C': 0.62, 'XLPE': 0.76 },
+          '56-60': { 'PVC 70°C': 0.51, 'PVC 90°C': 0.51, 'XLPE': 0.70 },
+          '61-65': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.65 },
+          '66-70': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.57 },
+          '71-75': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.49 },
+          '76-80': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.41 }
+        };
 
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">จำนวนกลุ่มวงจร</label>
-            <div class="flex gap-3">
-              <select id="circuitGroup" class="flex-1 border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
-                <!-- Options populated by JS -->
-              </select>
-              <div class="flex flex-col justify-center bg-white px-4 border border-slate-200 rounded-lg min-w-[100px] text-center">
-                <span class="text-[10px] text-slate-400">ตัวคูณ Cg</span>
-                <span id="displayCg" class="font-bold text-green-600">1.00</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        // ================= โครงสร้างตารางพิกัดกระแสสายไฟ =================
+        // g = กลุ่ม (1,2,3,4,5,6,7) | 2c/3c = 2ตัวนำ(1Phase)/3ตัวนำ(3Phase) | s/m = Single/Multi Core
+        // g7 = แบบบันได (ไม่มีฝาปิด), g7s = แบบด้านล่างทึบ (ไม่มีฝาปิด), g7c = แบบบันไดและด้านล่างทึบ (มีฝาปิด)
 
-      </div>
-    </div>
+        const ampacityPVC70 = [
+          { size: 1,   g1_2c_s: 10,  g1_2c_m: 10,  g1_3c_s: 9,   g1_3c_m: 9,   g2_2c_s: 12,  g2_2c_m: 11,  g2_3c_s: 10,  g2_3c_m: 10,  g3_2c_s: 14,  g3_2c_m: 13,  g3_3c_s: 13,  g3_3c_m: 12,  g4_2c_s: 15,  g4_2c_m: null, g4_3c_s: 15,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 14,  g7_2c_m: 13,  g7_3c_s: 13,  g7_3c_m: 11, g7s_2c_s: 13,  g7s_2c_m: 12,  g7s_3c_s: 12,  g7s_3c_m: 11, g7c_2c_s: 13, g7c_2c_m: 12, g7c_3c_s: 12, g7c_3c_m: 11 },
+          { size: 1.5, g1_2c_s: 13,  g1_2c_m: 12,  g1_3c_s: 12,  g1_3c_m: 11,  g2_2c_s: 15,  g2_2c_m: 14,  g2_3c_s: 13,  g2_3c_m: 13,  g3_2c_s: 18,  g3_2c_m: 17,  g3_3c_s: 16,  g3_3c_m: 16,  g4_2c_s: 20,  g4_2c_m: null, g4_3c_s: 20,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 18,  g7_2c_m: 17,  g7_3c_s: 16,  g7_3c_m: 15, g7s_2c_s: 17,  g7s_2c_m: 16,  g7s_3c_s: 15,  g7s_3c_m: 14, g7c_2c_s: 16, g7c_2c_m: 15, g7c_3c_s: 15, g7c_3c_m: 14 },
+          { size: 2.5, g1_2c_s: 17,  g1_2c_m: 16,  g1_3c_s: 16,  g1_3c_m: 15,  g2_2c_s: 21,  g2_2c_m: 20,  g2_3c_s: 18,  g2_3c_m: 17,  g3_2c_s: 24,  g3_2c_m: 23,  g3_3c_s: 21,  g3_3c_m: 21,  g4_2c_s: 27,  g4_2c_m: null, g4_3c_s: 27,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 25,  g7_2c_m: 23,  g7_3c_s: 21,  g7_3c_m: 20, g7s_2c_s: 23,  g7s_2c_m: 22,  g7s_3c_s: 21,  g7s_3c_m: 20, g7c_2c_s: 22, g7c_2c_m: 21, g7c_3c_s: 20, g7c_3c_m: 19 },
+          { size: 4,   g1_2c_s: 23,  g1_2c_m: 22,  g1_3c_s: 21,  g1_3c_m: 20,  g2_2c_s: 28,  g2_2c_m: 26,  g2_3c_s: 24,  g2_3c_m: 23,  g3_2c_s: 32,  g3_2c_m: 31,  g3_3c_s: 28,  g3_3c_m: 28,  g4_2c_s: 36,  g4_2c_m: null, g4_3c_s: 36,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 32,  g7_2c_m: 31,  g7_3c_s: 28,  g7_3c_m: 27, g7s_2c_s: 31,  g7s_2c_m: 30,  g7s_3c_s: 28,  g7s_3c_m: 27, g7c_2c_s: 30, g7c_2c_m: 28, g7c_3c_s: 27, g7c_3c_m: 26 },
+          { size: 6,   g1_2c_s: 30,  g1_2c_m: 28,  g1_3c_s: 27,  g1_3c_m: 25,  g2_2c_s: 36,  g2_2c_m: 33,  g2_3c_s: 31,  g2_3c_m: 30,  g3_2c_s: 41,  g3_2c_m: 39,  g3_3c_s: 36,  g3_3c_m: 36,  g4_2c_s: 47,  g4_2c_m: null, g4_3c_s: 47,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42,  g7_2c_m: 39,  g7_3c_s: 36,  g7_3c_m: 35, g7s_2c_s: 39,  g7s_2c_m: 37,  g7s_3c_s: 36,  g7s_3c_m: 34, g7c_2c_s: 38, g7c_2c_m: 36, g7c_3c_s: 35, g7c_3c_m: 33 },
+          { size: 10,  g1_2c_s: 40,  g1_2c_m: 37,  g1_3c_s: 37,  g1_3c_m: 34,  g2_2c_s: 50,  g2_2c_m: 45,  g2_3c_s: 44,  g2_3c_m: 40,  g3_2c_s: 57,  g3_2c_m: 54,  g3_3c_s: 50,  g3_3c_m: 50,  g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: 54,  g5_2c_m: 47,  g5_3c_s: 45,  g5_3c_m: 40,  g6_2c_s: 73,  g6_2c_m: 60,  g6_3c_s: 59,  g6_3c_m: 51,  g7_2c_s: 57,  g7_2c_m: 54,  g7_3c_s: 50,  g7_3c_m: 48, g7s_2c_s: 54,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 46, g7c_2c_s: 52, g7c_2c_m: 50, g7c_3c_s: 48, g7c_3c_m: 45 },
+          { size: 16,  g1_2c_s: 53,  g1_2c_m: 50,  g1_3c_s: 49,  g1_3c_m: 45,  g2_2c_s: 66,  g2_2c_m: 60,  g2_3c_s: 59,  g2_3c_m: 54,  g3_2c_s: 76,  g3_2c_m: 72,  g3_3c_s: 68,  g3_3c_m: 68,  g4_2c_s: 87,  g4_2c_m: null, g4_3c_s: 87,  g4_3c_m: null, g5_2c_s: 70,  g5_2c_m: 61,  g5_3c_s: 58,  g5_3c_m: 52,  g6_2c_s: 94,  g6_2c_m: 78,  g6_3c_s: 76,  g6_3c_m: 66,  g7_2c_s: 76,  g7_2c_m: 71,  g7_3c_s: 67,  g7_3c_m: 63, g7s_2c_s: 72,  g7s_2c_m: 69,  g7s_3c_s: 65,  g7s_3c_m: 61, g7c_2c_s: 69, g7c_2c_m: 66, g7c_3c_s: 62, g7c_3c_m: 59 },
+          { size: 25,  g1_2c_s: 70,  g1_2c_m: 65,  g1_3c_s: 64,  g1_3c_m: 59,  g2_2c_s: 88,  g2_2c_m: 78,  g2_3c_s: 77,  g2_3c_m: 70,  g3_2c_s: 101, g3_2c_m: 95,  g3_3c_s: 89,  g3_3c_m: 89,  g4_2c_s: 115, g4_2c_m: null, g4_3c_s: 115, g4_3c_m: null, g5_2c_s: 90,  g5_2c_m: 78,  g5_3c_s: 75,  g5_3c_m: 67,  g6_2c_s: 121, g6_2c_m: 100, g6_3c_s: 98,  g6_3c_m: 85,  g7_2c_s: 101, g7_2c_m: 93,  g7_3c_s: 89,  g7_3c_m: 82, g7s_2c_s: 95,  g7s_2c_m: 89,  g7s_3c_s: 85,  g7s_3c_m: 80, g7c_2c_s: 91, g7c_2c_m: 85, g7c_3c_s: 82, g7c_3c_m: 77 },
+          { size: 35,  g1_2c_s: 86,  g1_2c_m: 80,  g1_3c_s: 77,  g1_3c_m: 72,  g2_2c_s: 109, g2_2c_m: 97,  g2_3c_s: 96,  g2_3c_m: 86,  g3_2c_s: 125, g3_2c_m: 117, g3_3c_s: 110, g3_3c_m: 110,  g4_2c_s: 143, g4_2c_m: null, g4_3c_s: 143, g4_3c_m: null, g5_2c_s: 107, g5_2c_m: 94,  g5_3c_s: 90,  g5_3c_m: 80,  g6_2c_s: 144, g6_2c_m: 120, g6_3c_s: 117, g6_3c_m: 101,  g7_2c_s: 125, g7_2c_m: 114, g7_3c_s: 110, g7_3c_m: 100, g7s_2c_s: 119, g7s_2c_m: 110, g7s_3c_s: 106, g7s_3c_m: 98, g7c_2c_s: 114, g7c_2c_m: 106, g7c_3c_s: 102, g7c_3c_m: 94 },
+          { size: 50,  g1_2c_s: 104, g1_2c_m: 96,  g1_3c_s: 94,  g1_3c_m: 86,  g2_2c_s: 131, g2_2c_m: 116, g2_3c_s: 117, g2_3c_m: 103, g3_2c_s: 151, g3_2c_m: 141, g3_3c_s: 134, g3_3c_m: 134, g4_2c_s: 174, g4_2c_m: null, g4_3c_s: 174, g4_3c_m: null, g5_2c_s: 127, g5_2c_m: 111, g5_3c_s: 106, g5_3c_m: 95,  g6_2c_s: 171, g6_2c_m: 141, g6_3c_s: 138, g6_3c_m: 120, g7_2c_s: 151, g7_2c_m: 137, g7_3c_s: 134, g7_3c_m: 121, g7s_2c_s: 144, g7s_2c_m: 133, g7s_3c_s: 129, g7s_3c_m: 118, g7c_2c_s: 138, g7c_2c_m: 128, g7c_3c_s: 124, g7c_3c_m: 113 },
+          { size: 70,  g1_2c_s: 131, g1_2c_m: 121, g1_3c_s: 118, g1_3c_m: 109, g2_2c_s: 167, g2_2c_m: 146, g2_3c_s: 149, g2_3c_m: 130, g3_2c_s: 192, g3_2c_m: 179, g3_3c_s: 171, g3_3c_m: 171, g4_2c_s: 221, g4_2c_m: null, g4_3c_s: 221, g4_3c_m: null, g5_2c_s: 157, g5_2c_m: 137, g5_3c_s: 131, g5_3c_m: 117, g6_2c_s: 210, g6_2c_m: 174, g6_3c_s: 170, g6_3c_m: 148, g7_2c_s: 192, g7_2c_m: 175, g7_3c_s: 171, g7_3c_m: 154, g7s_2c_s: 184, g7s_2c_m: 169, g7s_3c_s: 165, g7s_3c_m: 150, g7c_2c_s: 176, g7c_2c_m: 162, g7c_3c_s: 158, g7c_3c_m: 144 },
+          { size: 95,  g1_2c_s: 158, g1_2c_m: 145, g1_3c_s: 143, g1_3c_m: 131, g2_2c_s: 202, g2_2c_m: 175, g2_3c_s: 180, g2_3c_m: 156, g3_2c_s: 232, g3_2c_m: 216, g3_3c_s: 207, g3_3c_m: 207, g4_2c_s: 267, g4_2c_m: null, g4_3c_s: 267, g4_3c_m: null, g5_2c_s: 187, g5_2c_m: 162, g5_3c_s: 156, g5_3c_m: 139, g6_2c_s: 250, g6_2c_m: 206, g6_3c_s: 202, g6_3c_m: 175, g7_2c_s: 232, g7_2c_m: 210, g7_3c_s: 207, g7_3c_m: 185, g7s_2c_s: 223, g7s_2c_m: 203, g7s_3c_s: 200, g7s_3c_m: 180, g7c_2c_s: 214, g7c_2c_m: 195, g7c_3c_s: 192, g7c_3c_m: 173 },
+          { size: 120, g1_2c_s: 183, g1_2c_m: 167, g1_3c_s: 164, g1_3c_m: 150, g2_2c_s: 234, g2_2c_m: 202, g2_3c_s: 208, g2_3c_m: 179, g3_2c_s: 269, g3_2c_m: 249, g3_3c_s: 239, g3_3c_m: 239, g4_2c_s: 310, g4_2c_m: null, g4_3c_s: 310, g4_3c_m: null, g5_2c_s: 212, g5_2c_m: 183, g5_3c_s: 177, g5_3c_m: 158, g6_2c_s: 284, g6_2c_m: 233, g6_3c_s: 229, g6_3c_m: 198, g7_2c_s: 269, g7_2c_m: 241, g7_3c_s: 239, g7_3c_m: 212, g7s_2c_s: 259, g7s_2c_m: 235, g7s_3c_s: 233, g7s_3c_m: 209, g7c_2c_s: 248, g7c_2c_m: 226, g7c_3c_s: 223, g7c_3c_m: 200 },
+          { size: 150, g1_2c_s: 209, g1_2c_m: 191, g1_3c_s: 188, g1_3c_m: 171, g2_2c_s: 261, g2_2c_m: 224, g2_3c_s: 228, g2_3c_m: 196, g3_2c_s: 300, g3_2c_m: 285, g3_3c_s: 262, g3_3c_m: 262, g4_2c_s: 356, g4_2c_m: null, g4_3c_s: 356, g4_3c_m: null, g5_2c_s: 237, g5_2c_m: 204, g5_3c_s: 198, g5_3c_m: 176, g6_2c_s: 317, g6_2c_m: 259, g6_3c_s: 256, g6_3c_m: 221, g7_2c_s: 300, g7_2c_m: 270, g7_3c_s: 262, g7_3c_m: 236, g7s_2c_s: 299, g7s_2c_m: 263, g7s_3c_s: 258, g7s_3c_m: 232, g7c_2c_s: 287, g7c_2c_m: 252, g7c_3c_s: 247, g7c_3c_m: 222 },
+          { size: 185, g1_2c_s: 238, g1_2c_m: 216, g1_3c_s: 213, g1_3c_m: 194, g2_2c_s: 297, g2_2c_m: 256, g2_3c_s: 258, g2_3c_m: 222, g3_2c_s: 341, g3_2c_m: 322, g3_3c_s: 296, g3_3c_m: 296, g4_2c_s: 405, g4_2c_m: null, g4_3c_s: 405, g4_3c_m: null, g5_2c_s: 266, g5_2c_m: 228, g5_3c_s: 221, g5_3c_m: 197, g6_2c_s: 355, g6_2c_m: 289, g6_3c_s: 285, g6_3c_m: 246, g7_2c_s: 341, g7_2c_m: 306, g7_3c_s: 296, g7_3c_m: 268, g7s_2c_s: 341, g7s_2c_m: 298, g7s_3c_s: 292, g7s_3c_m: 264, g7c_2c_s: 327, g7c_2c_m: 286, g7c_3c_s: 280, g7c_3c_m: 253 },
+          { size: 240, g1_2c_s: 279, g1_2c_m: 253, g1_3c_s: 249, g1_3c_m: 227, g2_2c_s: 348, g2_2c_m: 299, g2_3c_s: 301, g2_3c_m: 258, g3_2c_s: 400, g3_2c_m: 380, g3_3c_s: 346, g3_3c_m: 346, g4_2c_s: 483, g4_2c_m: null, g4_3c_s: 483, g4_3c_m: null, g5_2c_s: 307, g5_2c_m: 261, g5_3c_s: 254, g5_3c_m: 226, g6_2c_s: 409, g6_2c_m: 331, g6_3c_s: 327, g6_3c_m: 282, g7_2c_s: 400, g7_2c_m: 358, g7_3c_s: 346, g7_3c_m: 312, g7s_2c_s: 406, g7s_2c_m: 351, g7s_3c_s: 344, g7s_3c_m: 310, g7c_2c_s: 389, g7c_2c_m: 337, g7c_3c_s: 330, g7c_3c_m: 297 },
+          { size: 300, g1_2c_s: 319, g1_2c_m: 291, g1_3c_s: 285, g1_3c_m: 259, g2_2c_s: 398, g2_2c_m: 343, g2_3c_s: 343, g2_3c_m: 295, g3_2c_s: 458, g3_2c_m: 435, g3_3c_s: 394, g3_3c_m: 394, g4_2c_s: 557, g4_2c_m: null, g4_3c_s: 557, g4_3c_m: null, g5_2c_s: 345, g5_2c_m: 293, g5_3c_s: 285, g5_3c_m: 253, g6_2c_s: 459, g6_2c_m: 371, g6_3c_s: 366, g6_3c_m: 315, g7_2c_s: 458, g7_2c_m: 408, g7_3c_s: 394, g7_3c_m: 353, g7s_2c_s: 469, g7s_2c_m: 401, g7s_3c_s: 392, g7s_3c_m: 351, g7c_2c_s: 450, g7c_2c_m: 384, g7c_3c_s: 376, g7c_3c_m: 337 },
+          { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 546, g7_2c_m: null, g7_3c_s: 467, g7_3c_m: null, g7s_2c_s: null, g7s_2c_m: null, g7s_3c_s: null, g7s_3c_m: null, g7c_2c_s: null, g7c_2c_m: null, g7c_3c_s: null, g7c_3c_m: null },
+          { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 626, g7_2c_m: null, g7_3c_s: 533, g7_3c_m: null, g7s_2c_s: null, g7s_2c_m: null, g7s_3c_s: null, g7s_3c_m: null, g7c_2c_s: null, g7c_2c_m: null, g7c_3c_s: null, g7c_3c_m: null }
+        ];
 
-    <!-- Section 3: Final Result Placeholder -->
-    <div class="bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-700 text-center relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-      <p class="text-slate-300 text-sm font-medium mb-3">ขนาดสายไฟขั้นต่ำที่แนะนำ</p>
-      <div class="text-4xl font-bold text-white mb-3">
-        <span id="displayResultValue">รอการคำนวณ</span> 
-        <span id="displayResultUnit" class="text-2xl font-normal text-slate-400"></span>
-      </div>
-      <p class="text-slate-400 text-sm flex flex-col sm:flex-row justify-center gap-2 items-center mt-2">
-        <span id="displayDerating" class="inline-block bg-slate-700 px-3 py-1 rounded-full text-xs text-slate-300">
-          ตัวคูณรวม (Derating) = N/A
-        </span>
-        <span id="targetAmpacityContainer" class="inline-block bg-slate-700 px-3 py-1 rounded-full text-xs text-slate-300 hidden">
-          กระแสเป้าหมาย = <span id="displayTargetAmpacity">0</span> A
-        </span>
-      </p>
-    </div>
+        // 2. ตารางพิกัดกระแสสายไฟ PVC 90°C (อ้างอิงตารางที่ 5-21, 5-24 และตารางที่ 5-25 ล่าสุด)
+        const ampacityPVC90 = [
+          { size: 1,   g1_2c_s: 11,  g1_2c_m: 10,  g1_3c_s: 10,  g1_3c_m: 9,   g2_2c_s: 13,  g2_2c_m: 11,  g2_3c_s: 11,  g2_3c_m: 10,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 16,  g4_2c_m: null, g4_3c_s: 16,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 18,  g7_2c_m: 17,  g7_3c_s: 17,  g7_3c_m: 16,  g7s_2c_s: 17,  g7s_2c_m: 15,  g7s_3c_s: 15,  g7s_3c_m: 14, g7c_2c_s: 15, g7c_2c_m: 14, g7c_3c_s: 14, g7c_3c_m: 13 },
+          { size: 1.5, g1_2c_s: 15,  g1_2c_m: 13,  g1_3c_s: 13,  g1_3c_m: 12,  g2_2c_s: 17,  g2_2c_m: 14,  g2_3c_s: 15,  g2_3c_m: 13,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 22,  g4_2c_m: null, g4_3c_s: 22,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 25,  g7_2c_m: 23,  g7_3c_s: 23,  g7_3c_m: 21,  g7s_2c_s: 22,  g7s_2c_m: 20,  g7s_3c_s: 19,  g7s_3c_m: 18, g7c_2c_s: 19, g7c_2c_m: 18, g7c_3c_s: 18, g7c_3c_m: 16 },
+          { size: 2.5, g1_2c_s: 20,  g1_2c_m: 17,  g1_3c_s: 18,  g1_3c_m: 16,  g2_2c_s: 24,  g2_2c_m: 20,  g2_3c_s: 20,  g2_3c_m: 18,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 30,  g4_2c_m: null, g4_3c_s: 30,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 34,  g7_2c_m: 31,  g7_3c_s: 31,  g7_3c_m: 28,  g7s_2c_s: 29,  g7s_2c_m: 27,  g7s_3c_s: 26,  g7s_3c_m: 24, g7c_2c_s: 26, g7c_2c_m: 24, g7c_3c_s: 25, g7c_3c_m: 23 },
+          { size: 4,   g1_2c_s: 26,  g1_2c_m: 23,  g1_3c_s: 23,  g1_3c_m: 21,  g2_2c_s: 31,  g2_2c_m: 26,  g2_3c_s: 27,  g2_3c_m: 24,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 40,  g4_2c_m: null, g4_3c_s: 40,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 46,  g7_2c_m: 42,  g7_3c_s: 42,  g7_3c_m: 38,  g7s_2c_s: 39,  g7s_2c_m: 36,  g7s_3c_s: 35,  g7s_3c_m: 33, g7c_2c_s: 35, g7c_2c_m: 32, g7c_3c_s: 33, g7c_3c_m: 30 },
+          { size: 6,   g1_2c_s: 34,  g1_2c_m: 30,  g1_3c_s: 30,  g1_3c_m: 27,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 31,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 59,  g7_2c_m: 54,  g7_3c_s: 54,  g7_3c_m: 49,  g7s_2c_s: 49,  g7s_2c_m: 46,  g7s_3c_s: 44,  g7s_3c_m: 41, g7c_2c_s: 45, g7c_2c_m: 41, g7c_3c_s: 42, g7c_3c_m: 39 },
+          { size: 10,  g1_2c_s: 46,  g1_2c_m: 40,  g1_3c_s: 41,  g1_3c_m: 37,  g2_2c_s: 56,  g2_2c_m: 47,  g2_3c_s: 49,  g2_3c_m: 42,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 71,  g4_2c_m: null, g4_3c_s: 71,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 81,  g7_2c_m: 75,  g7_3c_s: 75,  g7_3c_m: 67,  g7s_2c_s: 67,  g7s_2c_m: 63,  g7s_3c_s: 60,  g7s_3c_m: 56, g7c_2c_s: 61, g7c_2c_m: 57, g7c_3c_s: 57, g7c_3c_m: 53 },
+          { size: 16,  g1_2c_s: 61,  g1_2c_m: 54,  g1_3c_s: 54,  g1_3c_m: 49,  g2_2c_s: 74,  g2_2c_m: 63,  g2_3c_s: 65,  g2_3c_m: 56,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 96,  g4_2c_m: null, g4_3c_s: 96,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 109, g7_2c_m: 100, g7_3c_s: 100, g7_3c_m: 89,  g7s_2c_s: 89,  g7s_2c_m: 83,  g7s_3c_s: 80,  g7s_3c_m: 75, g7c_2c_s: 82, g7c_2c_m: 75, g7c_3c_s: 77, g7c_3c_m: 70 },
+          { size: 25,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 64,  g2_2c_s: 99,  g2_2c_m: 82,  g2_3c_s: 86,  g2_3c_m: 74,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 126, g4_2c_m: null, g4_3c_s: 126, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 143, g7_2c_m: 133, g7_3c_s: 133, g7_3c_m: 118, g7s_2c_s: 118, g7s_2c_m: 108, g7s_3c_s: 106, g7s_3c_m: 98, g7c_2c_s: 109, g7c_2c_m: 100, g7c_3c_s: 102, g7c_3c_m: 92 },
+          { size: 35,  g1_2c_s: 98,  g1_2c_m: 86,  g1_3c_s: 86,  g1_3c_m: 78,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 106, g2_3c_m: 90,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 176, g7_2c_m: 161, g7_3c_s: 164, g7_3c_m: 145, g7s_2c_s: 145, g7s_2c_m: 132, g7s_3c_s: 130, g7s_3c_m: 120, g7c_2c_s: 135, g7c_2c_m: 123, g7c_3c_s: 127, g7c_3c_m: 113 },
+          { size: 50,  g1_2c_s: 119, g1_2c_m: 104, g1_3c_s: 105, g1_3c_m: 94,  g2_2c_s: 147, g2_2c_m: 121, g2_3c_s: 128, g2_3c_m: 108, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 214, g7_2c_m: 196, g7_3c_s: 200, g7_3c_m: 175, g7s_2c_s: 175, g7s_2c_m: 158, g7s_3c_s: 157, g7s_3c_m: 144, g7c_2c_s: 163, g7c_2c_m: 146, g7c_3c_s: 153, g7c_3c_m: 134 },
+          { size: 70,  g1_2c_s: 149, g1_2c_m: 130, g1_3c_s: 132, g1_3c_m: 119, g2_2c_s: 187, g2_2c_m: 153, g2_3c_s: 163, g2_3c_m: 136, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 242, g4_2c_m: null, g4_3c_s: 242, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 275, g7_2c_m: 251, g7_3c_s: 256, g7_3c_m: 224, g7s_2c_s: 224, g7s_2c_m: 201, g7s_3c_s: 201, g7s_3c_m: 184, g7c_2c_s: 209, g7c_2c_m: 187, g7c_3c_s: 196, g7c_3c_m: 172 },
+          { size: 95,  g1_2c_s: 180, g1_2c_m: 156, g1_3c_s: 160, g1_3c_m: 143, g2_2c_s: 226, g2_2c_m: 184, g2_3c_s: 198, g2_3c_m: 164, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 293, g4_2c_m: null, g4_3c_s: 293, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 334, g7_2c_m: 304, g7_3c_s: 312, g7_3c_m: 271, g7s_2c_s: 271, g7s_2c_m: 242, g7s_3c_s: 243, g7s_3c_m: 220, g7c_2c_s: 254, g7c_2c_m: 226, g7c_3c_s: 238, g7c_3c_m: 207 },
+          { size: 120, g1_2c_s: 209, g1_2c_m: 180, g1_3c_s: 184, g1_3c_m: 164, g2_2c_s: 262, g2_2c_m: 212, g2_3c_s: 229, g2_3c_m: 188, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 339, g4_2c_m: null, g4_3c_s: 339, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 389, g7_2c_m: 352, g7_3c_s: 363, g7_3c_m: 314, g7s_2c_s: 314, g7s_2c_m: 278, g7s_3c_s: 281, g7s_3c_m: 251, g7c_2c_s: 295, g7c_2c_m: 260, g7c_3c_s: 277, g7c_3c_m: 239 },
+          { size: 150, g1_2c_s: 238, g1_2c_m: 205, g1_3c_s: 211, g1_3c_m: 187, g2_2c_s: 293, g2_2c_m: 235, g2_3c_s: 251, g2_3c_m: 205, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 389, g4_2c_m: null, g4_3c_s: 389, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 446, g7_2c_m: 406, g7_3c_s: 417, g7_3c_m: 361, g7s_2c_s: 361, g7s_2c_m: 316, g7s_3c_s: 318, g7s_3c_m: 282, g7c_2c_s: 339, g7c_2c_m: 297, g7c_3c_s: 319, g7c_3c_m: 273 },
+          { size: 185, g1_2c_s: 271, g1_2c_m: 232, g1_3c_s: 240, g1_3c_m: 212, g2_2c_s: 333, g2_2c_m: 268, g2_3c_s: 284, g2_3c_m: 232, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 444, g4_2c_m: null, g4_3c_s: 444, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 512, g7_2c_m: 463, g7_3c_s: 479, g7_3c_m: 412, g7s_2c_s: 412, g7s_2c_m: 358, g7s_3c_s: 359, g7s_3c_m: 317, g7c_2c_s: 388, g7c_2c_m: 339, g7c_3c_s: 364, g7c_3c_m: 311 },
+          { size: 240, g1_2c_s: 318, g1_2c_m: 271, g1_3c_s: 281, g1_3c_m: 248, g2_2c_s: 391, g2_2c_m: 313, g2_3c_s: 331, g2_3c_m: 270, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 530, g4_2c_m: null, g4_3c_s: 530, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 607, g7_2c_m: 546, g7_3c_s: 569, g7_3c_m: 484, g7s_2c_s: 484, g7s_2c_m: 419, g7s_3c_s: 416, g7s_3c_m: 364, g7c_2c_s: 461, g7c_2c_m: 400, g7c_3c_s: 433, g7c_3c_m: 367 },
+          { size: 300, g1_2c_s: 364, g1_2c_m: 311, g1_3c_s: 322, g1_3c_m: 283, g2_2c_s: 447, g2_2c_m: 359, g2_3c_s: 377, g2_3c_m: 308, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 611, g4_2c_m: null, g4_3c_s: 611, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 698, g7_2c_m: 629, g7_3c_s: 655, g7_3c_m: 558, g7s_2c_s: 558, g7s_2c_m: 479, g7s_3c_m: 477, g7s_3c_m: 415, g7c_2c_s: 531, g7c_2c_m: 459, g7c_3c_s: 499, g7c_3c_m: 422 },
+          { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666,  g7s_2c_m: 599,  g7s_3c_s: 626,  g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
+          { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768,  g7s_2c_m: 692,  g7s_3c_s: 722,  g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
+        ];
 
-  </div>
+        // 3. ตารางพิกัดกระแสสายไฟ XLPE (อ้างอิงตารางที่ 5-29, 5-31 และ 5-32 ล่าสุด)
+        const ampacityXLPE = [
+          { size: 1,   g1_2c_s: 15,  g1_2c_m: 14,  g1_3c_s: 13,  g1_3c_m: 12,  g2_2c_s: 18,  g2_2c_m: 15,  g2_3c_s: 15,  g2_3c_m: 13,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 21,  g4_2c_m: null, g4_3c_s: 21,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 17, g7_2c_m: 17, g7_3c_s: 16, g7_3c_m: 16, g7s_2c_s: 20,  g7s_2c_m: 17,  g7s_3c_s: 17,  g7s_3c_m: 16, g7c_2c_s: 18, g7c_2c_m: 16, g7c_3c_s: 17, g7c_3c_m: 15 },
+          { size: 1.5, g1_2c_s: 20,  g1_2c_m: 18,  g1_3c_s: 17,  g1_3c_m: 15,  g2_2c_s: 23,  g2_2c_m: 19,  g2_3c_s: 20,  g2_3c_m: 17,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 28,  g4_2c_m: null, g4_3c_s: 28,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 23, g7_2c_m: 23, g7_3c_s: 21, g7_3c_m: 21, g7s_2c_s: 26,  g7s_2c_m: 23,  g7s_3c_s: 22,  g7s_3c_m: 21, g7c_2c_s: 24, g7c_2c_m: 22, g7c_3c_s: 23, g7c_3c_m: 20 },
+          { size: 2.5, g1_2c_s: 27,  g1_2c_m: 24,  g1_3c_s: 24,  g1_3c_m: 21,  g2_2c_s: 31,  g2_2c_m: 26,  g2_3c_s: 27,  g2_3c_m: 23,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 39,  g4_2c_m: null, g4_3c_s: 39,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 34, g7_2c_m: 31, g7_3c_s: 31, g7_3c_m: 28, g7s_2c_s: 34,  g7s_2c_m: 31,  g7s_3c_s: 29,  g7s_3c_m: 28, g7c_2c_s: 32, g7c_2c_m: 29, g7c_3c_s: 30, g7c_3c_m: 27 },
+          { size: 4,   g1_2c_s: 35,  g1_2c_m: 31,  g1_3c_s: 31,  g1_3c_m: 28,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 30,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42, g7_2c_m: 42, g7_3c_s: 38, g7_3c_m: 38, g7s_2c_s: 45,  g7s_2c_m: 41,  g7s_3c_s: 38,  g7s_3c_m: 37, g7c_2c_s: 43, g7c_2c_m: 39, g7c_3c_s: 40, g7c_3c_m: 36 },
+          { size: 6,   g1_2c_s: 45,  g1_2c_m: 40,  g1_3c_s: 40,  g1_3c_m: 35,  g2_2c_s: 52,  g2_2c_m: 43,  g2_3c_s: 45,  g2_3c_m: 38,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 54, g7_2c_m: 54, g7_3c_s: 49, g7_3c_m: 49, g7s_2c_s: 57,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 47, g7c_2c_s: 55, g7c_2c_m: 49, g7c_3c_s: 52, g7c_3c_m: 46 },
+          { size: 10,  g1_2c_s: 61,  g1_2c_m: 53,  g1_3c_s: 54,  g1_3c_m: 47,  g2_2c_s: 71,  g2_2c_m: 59,  g2_3c_s: 60,  g2_3c_m: 51,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 90,  g4_2c_m: null, g4_3c_s: 90,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 74, g7_2c_m: 74, g7_3c_s: 67, g7_3c_m: 67, g7s_2c_s: 78,  g7s_2c_m: 71,  g7s_3c_s: 67,  g7s_3c_m: 63, g7c_2c_s: 74, g7c_2c_m: 67, g7c_3c_s: 70, g7c_3c_m: 62 },
+          { size: 16,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 62,  g2_2c_s: 93,  g2_2c_m: 77,  g2_3c_s: 79,  g2_3c_m: 67,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 120, g4_2c_m: null, g4_3c_s: 120, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 98, g7_2c_m: 98, g7_3c_s: 89, g7_3c_m: 89, g7s_2c_s: 102, g7s_2c_m: 93,  g7s_3c_s: 89,  g7s_3c_m: 83, g7c_2c_s: 99, g7c_2c_m: 89, g7c_3c_s: 93, g7c_3c_m: 83 },
+          { size: 25,  g1_2c_s: 105, g1_2c_m: 91,  g1_3c_s: 93,  g1_3c_m: 81,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 104, g2_3c_m: 88,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 129, g7_2c_m: 129, g7_3c_s: 117, g7_3c_m: 117, g7s_2c_s: 135, g7s_2c_m: 123, g7s_3c_s: 117, g7s_3c_m: 108, g7c_2c_s: 131, g7c_2c_m: 116, g7c_3c_s: 123, g7c_3c_m: 108 },
+          { size: 35,  g1_2c_s: 128, g1_2c_m: 111, g1_3c_s: 113, g1_3c_m: 98,  g2_2c_s: 149, g2_2c_m: 123, g2_3c_s: 127, g2_3c_m: 107, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 158, g7_2c_m: 158, g7_3c_s: 143, g7_3c_m: 143, g7s_2c_s: 165, g7s_2c_m: 149, g7s_3c_s: 143, g7s_3c_m: 131, g7c_2c_s: 161, g7c_2c_m: 142, g7c_3c_s: 151, g7c_3c_m: 132 },
+          { size: 50,  g1_2c_s: 154, g1_2c_m: 133, g1_3c_s: 136, g1_3c_m: 118, g2_2c_s: 180, g2_2c_m: 147, g2_3c_s: 153, g2_3c_m: 128, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 232, g4_2c_m: null, g4_3c_s: 232, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 192, g7_2c_m: 192, g7_3c_s: 174, g7_3c_m: 174, g7s_2c_s: 199, g7s_2c_m: 178, g7s_3c_s: 174, g7s_3c_m: 158, g7c_2c_s: 195, g7c_2c_m: 171, g7c_3c_s: 183, g7c_3c_m: 158 },
+          { size: 70,  g1_2c_s: 194, g1_2c_m: 167, g1_3c_s: 170, g1_3c_m: 148, g2_2c_s: 226, g2_2c_m: 184, g2_3c_s: 193, g2_3c_m: 162, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 292, g4_2c_m: null, g4_3c_s: 292, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 243, g7_2c_m: 243, g7_3c_s: 220, g7_3c_m: 220, g7s_2c_s: 253, g7s_2c_m: 226, g7s_3c_s: 220, g7s_3c_m: 198, g7c_2c_s: 248, g7c_2c_m: 218, g7c_3c_s: 233, g7c_3c_m: 202 },
+          { size: 95,  g1_2c_s: 233, g1_2c_m: 200, g1_3c_s: 205, g1_3c_m: 177, g2_2c_s: 272, g2_2c_m: 221, g2_3c_s: 233, g2_3c_m: 194, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 354, g4_2c_m: null, g4_3c_s: 354, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 295, g7_2c_m: 295, g7_3c_s: 267, g7_3c_m: 267, g7s_2c_s: 308, g7s_2c_m: 273, g7s_3c_s: 267, g7s_3c_m: 241, g7c_2c_s: 301, g7c_2c_m: 263, g7c_3c_s: 283, g7c_3c_m: 243 },
+          { size: 120, g1_2c_s: 268, g1_2c_m: 230, g1_3c_s: 235, g1_3c_m: 203, g2_2c_s: 313, g2_2c_m: 252, g2_3c_s: 268, g2_3c_m: 222, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 410, g4_2c_m: null, g4_3c_s: 410, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 341, g7_2c_m: 341, g7_3c_s: 309, g7_3c_m: 309, g7s_2c_s: 356, g7s_2c_m: 315, g7s_3c_s: 309, g7s_3c_m: 277, g7c_2c_s: 349, g7c_2c_m: 304, g7c_3c_s: 328, g7c_3c_m: 281 },
+          { size: 150, g1_2c_s: 305, g1_2c_m: 261, g1_3c_s: 267, g1_3c_m: 230, g2_2c_s: 355, g2_2c_m: 285, g2_3c_s: 304, g2_3c_m: 251, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 471, g4_2c_m: null, g4_3c_s: 471, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 388, g7_2c_m: 388, g7_3c_s: 351, g7_3c_m: 351, g7s_2c_s: 405, g7s_2c_m: 358, g7s_3c_s: 351, g7s_3c_m: 314, g7c_2c_s: 400, g7c_2c_m: 347, g7c_3c_s: 376, g7c_3c_m: 321 },
+          { size: 185, g1_2c_s: 345, g1_2c_m: 294, g1_3c_s: 301, g1_3c_m: 259, g2_2c_s: 402, g2_2c_m: 321, g2_3c_s: 343, g2_3c_m: 282, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 538, g4_2c_m: null, g4_3c_s: 538, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 444, g7_2c_m: 444, g7_3c_s: 402, g7_3c_m: 402, g7s_2c_s: 463, g7s_2c_m: 406, g7s_3c_s: 402, g7s_3c_m: 358, g7c_2c_s: 457, g7c_2c_m: 395, g7c_3c_s: 430, g7c_3c_m: 365 },
+          { size: 240, g1_2c_s: 404, g1_2c_m: 342, g1_3c_s: 351, g1_3c_m: 301, g2_2c_s: 470, g2_2c_m: 372, g2_3c_s: 399, g2_3c_m: 327, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 641, g4_2c_m: null, g4_3c_s: 641, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 524, g7_2c_m: 524, g7_3c_s: 474, g7_3c_m: 474, g7s_2c_s: 546, g7s_2c_m: 477, g7s_3c_s: 474, g7s_3c_m: 419, g7c_2c_s: 541, g7c_2c_m: 464, g7c_3c_s: 508, g7c_3c_m: 429 },
+          { size: 300, g1_2c_s: 461, g1_2c_m: 390, g1_3c_s: 400, g1_3c_m: 342, g2_2c_s: 535, g2_2c_m: 422, g2_3c_s: 453, g2_3c_m: 371, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 739, g4_2c_m: null, g4_3c_s: 739, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 604, g7_2c_m: 604, g7_3c_s: 547, g7_3c_m: 547, g7s_2c_s: 629, g7s_2c_m: 547, g7s_3c_s: 547, g7s_3c_m: 479, g7c_2c_s: 624, g7c_2c_m: 532, g7c_3c_s: 586, g7c_3c_m: 492 },
+          { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666,  g7s_2c_m: 599,  g7s_3c_s: 626,  g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
+          { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768,  g7s_2c_m: 692,  g7s_3c_s: 722,  g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
+        ];
 
-  <script>
-    // ================= ข้อมูลตารางอ้างอิง (Database) =================
-    const groupDerating = {
-      '1': { enclosed: 1.00, surface: 1.00 },
-      '2': { enclosed: 0.80, surface: 0.85 },
-      '3': { enclosed: 0.70, surface: 0.79 },
-      '4': { enclosed: 0.65, surface: 0.75 },
-      '5': { enclosed: 0.60, surface: 0.73 },
-      '6': { enclosed: 0.57, surface: 0.72 },
-      '7': { enclosed: 0.54, surface: 0.72 },
-      '8': { enclosed: 0.52, surface: 0.71 },
-      '9': { enclosed: 0.50, surface: 0.70 },
-      '10-12': { enclosed: 0.45, surface: 0.70 },
-      '13-16': { enclosed: 0.41, surface: 0.70 },
-      '17-20': { enclosed: 0.38, surface: 0.70 }
-    };
+        // ================= App Component =================
+        function App() {
+          const [phase, setPhase] = useState('AC 3-Phase');
+          const [voltage, setVoltage] = useState(400);
+          const [loadCurrent, setLoadCurrent] = useState('');
+          const [cbSize, setCbSize] = useState('');
 
-    const tempDeratingAir = {
-      '11-15': { 'PVC 70°C': 1.34, 'PVC 90°C': null, 'XLPE': 1.23 },
-      '16-20': { 'PVC 70°C': 1.29, 'PVC 90°C': null, 'XLPE': 1.19 },
-      '21-25': { 'PVC 70°C': 1.22, 'PVC 90°C': null, 'XLPE': 1.14 },
-      '26-30': { 'PVC 70°C': 1.15, 'PVC 90°C': null, 'XLPE': 1.10 },
-      '31-35': { 'PVC 70°C': 1.08, 'PVC 90°C': 1.00, 'XLPE': 1.05 },
-      '36-40': { 'PVC 70°C': 1.00, 'PVC 90°C': 1.00, 'XLPE': 1.00 },
-      '41-45': { 'PVC 70°C': 0.91, 'PVC 90°C': 1.00, 'XLPE': 0.96 },
-      '46-50': { 'PVC 70°C': 0.82, 'PVC 90°C': 1.00, 'XLPE': 0.90 },
-      '51-55': { 'PVC 70°C': 0.70, 'PVC 90°C': 0.96, 'XLPE': 0.84 },
-      '56-60': { 'PVC 70°C': 0.57, 'PVC 90°C': 0.83, 'XLPE': 0.78 },
-      '61-65': { 'PVC 70°C': null, 'PVC 90°C': 0.67, 'XLPE': 0.71 },
-      '66-70': { 'PVC 70°C': null, 'PVC 90°C': 0.47, 'XLPE': 0.64 },
-      '71-75': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.55 },
-      '76-80': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.45 }
-    };
+          const [insulation, setInsulation] = useState('PVC 70°C');
+          const [coreType, setCoreType] = useState('Single Core');
+          const [installType, setInstallType] = useState('เดินอากาศ');
+          const [installGroup, setInstallGroup] = useState('กลุ่ม 1: เดินช่องเดินสายภายในฝ้าเพดาน/ผนังกันไฟ');
+          const [trayType, setTrayType] = useState('รางเคเบิลแบบบันได (ไม่มีฝาปิด)');
+          const [temperature, setTemperature] = useState('36-40');
+          const [circuitGroup, setCircuitGroup] = useState('1');
 
-    const tempDeratingUnderground = {
-      '11-15': { 'PVC 70°C': 1.18, 'PVC 90°C': 1.18, 'XLPE': 1.12 },
-      '16-20': { 'PVC 70°C': 1.12, 'PVC 90°C': 1.12, 'XLPE': 1.08 },
-      '21-25': { 'PVC 70°C': 1.07, 'PVC 90°C': 1.07, 'XLPE': 1.03 },
-      '26-30': { 'PVC 70°C': 1.00, 'PVC 90°C': 1.00, 'XLPE': 1.00 },
-      '31-35': { 'PVC 70°C': 0.94, 'PVC 90°C': 0.94, 'XLPE': 0.96 },
-      '36-40': { 'PVC 70°C': 0.87, 'PVC 90°C': 0.87, 'XLPE': 0.91 },
-      '41-45': { 'PVC 70°C': 0.80, 'PVC 90°C': 0.80, 'XLPE': 0.86 },
-      '46-50': { 'PVC 70°C': 0.71, 'PVC 90°C': 0.71, 'XLPE': 0.82 },
-      '51-55': { 'PVC 70°C': 0.62, 'PVC 90°C': 0.62, 'XLPE': 0.76 },
-      '56-60': { 'PVC 70°C': 0.51, 'PVC 90°C': 0.51, 'XLPE': 0.70 },
-      '61-65': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.65 },
-      '66-70': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.57 },
-      '71-75': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.49 },
-      '76-80': { 'PVC 70°C': null, 'PVC 90°C': null, 'XLPE': 0.41 }
-    };
+          const [currentCt, setCurrentCt] = useState(1.0);
+          const [currentCg, setCurrentCg] = useState(1.0);
+          const [calculatedCableSize, setCalculatedCableSize] = useState(null);
+          const [targetAmpacity, setTargetAmpacity] = useState(0);
 
-    // ================= โครงสร้างตารางพิกัดกระแสสายไฟ =================
-    // g = กลุ่ม (1,2,3,4,5,6,7) | 2c/3c = 2ตัวนำ(1Phase)/3ตัวนำ(3Phase) | s/m = Single/Multi Core
-    // g7 = แบบบันได (ไม่มีฝาปิด), g7s = แบบด้านล่างทึบ (ไม่มีฝาปิด), g7c = แบบบันไดและด้านล่างทึบ (มีฝาปิด)
+          const standardCB = [10, 16, 20, 25, 32, 40, 50, 63];
+          const tempOptions = Object.keys(tempDeratingAir);
+          const circuitGroupOptions = Object.keys(groupDerating);
+          const installGroups = [
+            'กลุ่ม 1: เดินช่องเดินสายภายในฝ้าเพดาน/ผนังกันไฟ',
+            'กลุ่ม 2: เดินในช่องเดินสาย เกาะผนัง/เพดาน/ฝังคอนกรีต',
+            'กลุ่ม 3: เดินเกาะผนัง/เพดาน ไม่มีสิ่งปิดหุ้ม',
+            'กลุ่ม 4: เดินบนฉนวนลูกถ้วยในอากาศ',
+            'กลุ่ม 5: เดินในท่อฝังดิน',
+            'กลุ่ม 6: ฝังดินโดยตรง',
+            'กลุ่ม 7: วางบนรางเคเบิล (Cable Tray)'
+          ];
 
-    // 1. ตารางพิกัดกระแสสายไฟ PVC 70°C
-    const ampacityPVC70 = [
-      { size: 1,   g1_2c_s: 10,  g1_2c_m: 10,  g1_3c_s: 9,   g1_3c_m: 9,   g2_2c_s: 12,  g2_2c_m: 11,  g2_3c_s: 10,  g2_3c_m: 10,  g3_2c_s: 14,  g3_2c_m: 13,  g3_3c_s: 13,  g3_3c_m: 12,  g4_2c_s: 15,  g4_2c_m: null, g4_3c_s: 15,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 14,  g7_2c_m: 13,  g7_3c_s: 13,  g7_3c_m: 11, g7s_2c_s: 13,  g7s_2c_m: 12,  g7s_3c_s: 12,  g7s_3c_m: 11, g7c_2c_s: 13, g7c_2c_m: 12, g7c_3c_s: 12, g7c_3c_m: 11 },
-      { size: 1.5, g1_2c_s: 13,  g1_2c_m: 12,  g1_3c_s: 12,  g1_3c_m: 11,  g2_2c_s: 15,  g2_2c_m: 14,  g2_3c_s: 13,  g2_3c_m: 13,  g3_2c_s: 18,  g3_2c_m: 17,  g3_3c_s: 16,  g3_3c_m: 16,  g4_2c_s: 20,  g4_2c_m: null, g4_3c_s: 20,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 18,  g7_2c_m: 17,  g7_3c_s: 16,  g7_3c_m: 15, g7s_2c_s: 17,  g7s_2c_m: 16,  g7s_3c_s: 15,  g7s_3c_m: 14, g7c_2c_s: 16, g7c_2c_m: 15, g7c_3c_s: 15, g7c_3c_m: 14 },
-      { size: 2.5, g1_2c_s: 17,  g1_2c_m: 16,  g1_3c_s: 16,  g1_3c_m: 15,  g2_2c_s: 21,  g2_2c_m: 20,  g2_3c_s: 18,  g2_3c_m: 17,  g3_2c_s: 24,  g3_2c_m: 23,  g3_3c_s: 21,  g3_3c_m: 21,  g4_2c_s: 27,  g4_2c_m: null, g4_3c_s: 27,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 25,  g7_2c_m: 23,  g7_3c_s: 21,  g7_3c_m: 20, g7s_2c_s: 23,  g7s_2c_m: 22,  g7s_3c_s: 21,  g7s_3c_m: 20, g7c_2c_s: 22, g7c_2c_m: 21, g7c_3c_s: 20, g7c_3c_m: 19 },
-      { size: 4,   g1_2c_s: 23,  g1_2c_m: 22,  g1_3c_s: 21,  g1_3c_m: 20,  g2_2c_s: 28,  g2_2c_m: 26,  g2_3c_s: 24,  g2_3c_m: 23,  g3_2c_s: 32,  g3_2c_m: 31,  g3_3c_s: 28,  g3_3c_m: 28,  g4_2c_s: 36,  g4_2c_m: null, g4_3c_s: 36,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 32,  g7_2c_m: 31,  g7_3c_s: 28,  g7_3c_m: 27, g7s_2c_s: 31,  g7s_2c_m: 30,  g7s_3c_s: 28,  g7s_3c_m: 27, g7c_2c_s: 30, g7c_2c_m: 28, g7c_3c_s: 27, g7c_3c_m: 26 },
-      { size: 6,   g1_2c_s: 30,  g1_2c_m: 28,  g1_3c_s: 27,  g1_3c_m: 25,  g2_2c_s: 36,  g2_2c_m: 33,  g2_3c_s: 31,  g2_3c_m: 30,  g3_2c_s: 41,  g3_2c_m: 39,  g3_3c_s: 36,  g3_3c_m: 36,  g4_2c_s: 47,  g4_2c_m: null, g4_3c_s: 47,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42,  g7_2c_m: 39,  g7_3c_s: 36,  g7_3c_m: 35, g7s_2c_s: 39,  g7s_2c_m: 37,  g7s_3c_s: 36,  g7s_3c_m: 34, g7c_2c_s: 38, g7c_2c_m: 36, g7c_3c_s: 35, g7c_3c_m: 33 },
-      { size: 10,  g1_2c_s: 40,  g1_2c_m: 37,  g1_3c_s: 37,  g1_3c_m: 34,  g2_2c_s: 50,  g2_2c_m: 45,  g2_3c_s: 44,  g2_3c_m: 40,  g3_2c_s: 57,  g3_2c_m: 54,  g3_3c_s: 50,  g3_3c_m: 50,  g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: 54,  g5_2c_m: 47,  g5_3c_s: 45,  g5_3c_m: 40,  g6_2c_s: 73,  g6_2c_m: 60,  g6_3c_s: 59,  g6_3c_m: 51,  g7_2c_s: 57,  g7_2c_m: 54,  g7_3c_s: 50,  g7_3c_m: 48, g7s_2c_s: 54,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 46, g7c_2c_s: 52, g7c_2c_m: 50, g7c_3c_s: 48, g7c_3c_m: 45 },
-      { size: 16,  g1_2c_s: 53,  g1_2c_m: 50,  g1_3c_s: 49,  g1_3c_m: 45,  g2_2c_s: 66,  g2_2c_m: 60,  g2_3c_s: 59,  g2_3c_m: 54,  g3_2c_s: 76,  g3_2c_m: 72,  g3_3c_s: 68,  g3_3c_m: 68,  g4_2c_s: 87,  g4_2c_m: null, g4_3c_s: 87,  g4_3c_m: null, g5_2c_s: 70,  g5_2c_m: 61,  g5_3c_s: 58,  g5_3c_m: 52,  g6_2c_s: 94,  g6_2c_m: 78,  g6_3c_s: 76,  g6_3c_m: 66,  g7_2c_s: 76,  g7_2c_m: 71,  g7_3c_s: 67,  g7_3c_m: 63, g7s_2c_s: 72,  g7s_2c_m: 69,  g7s_3c_s: 65,  g7s_3c_m: 61, g7c_2c_s: 69, g7c_2c_m: 66, g7c_3c_s: 62, g7c_3c_m: 59 },
-      { size: 25,  g1_2c_s: 70,  g1_2c_m: 65,  g1_3c_s: 64,  g1_3c_m: 59,  g2_2c_s: 88,  g2_2c_m: 78,  g2_3c_s: 77,  g2_3c_m: 70,  g3_2c_s: 101, g3_2c_m: 95,  g3_3c_s: 89,  g3_3c_m: 89,  g4_2c_s: 115, g4_2c_m: null, g4_3c_s: 115, g4_3c_m: null, g5_2c_s: 90,  g5_2c_m: 78,  g5_3c_s: 75,  g5_3c_m: 67,  g6_2c_s: 121, g6_2c_m: 100, g6_3c_s: 98,  g6_3c_m: 85,  g7_2c_s: 101, g7_2c_m: 93,  g7_3c_s: 89,  g7_3c_m: 82, g7s_2c_s: 95,  g7s_2c_m: 89,  g7s_3c_s: 85,  g7s_3c_m: 80, g7c_2c_s: 91, g7c_2c_m: 85, g7c_3c_s: 82, g7c_3c_m: 77 },
-      { size: 35,  g1_2c_s: 86,  g1_2c_m: 80,  g1_3c_s: 77,  g1_3c_m: 72,  g2_2c_s: 109, g2_2c_m: 97,  g2_3c_s: 96,  g2_3c_m: 86,  g3_2c_s: 125, g3_2c_m: 117, g3_3c_s: 110, g3_3c_m: 110,  g4_2c_s: 143, g4_2c_m: null, g4_3c_s: 143, g4_3c_m: null, g5_2c_s: 107, g5_2c_m: 94,  g5_3c_s: 90,  g5_3c_m: 80,  g6_2c_s: 144, g6_2c_m: 120, g6_3c_s: 117, g6_3c_m: 101,  g7_2c_s: 125, g7_2c_m: 114, g7_3c_s: 110, g7_3c_m: 100, g7s_2c_s: 119, g7s_2c_m: 110, g7s_3c_s: 106, g7s_3c_m: 98, g7c_2c_s: 114, g7c_2c_m: 106, g7c_3c_s: 102, g7c_3c_m: 94 },
-      { size: 50,  g1_2c_s: 104, g1_2c_m: 96,  g1_3c_s: 94,  g1_3c_m: 86,  g2_2c_s: 131, g2_2c_m: 116, g2_3c_s: 117, g2_3c_m: 103, g3_2c_s: 151, g3_2c_m: 141, g3_3c_s: 134, g3_3c_m: 134, g4_2c_s: 174, g4_2c_m: null, g4_3c_s: 174, g4_3c_m: null, g5_2c_s: 127, g5_2c_m: 111, g5_3c_s: 106, g5_3c_m: 95,  g6_2c_s: 171, g6_2c_m: 141, g6_3c_s: 138, g6_3c_m: 120, g7_2c_s: 151, g7_2c_m: 137, g7_3c_s: 134, g7_3c_m: 121, g7s_2c_s: 144, g7s_2c_m: 133, g7s_3c_s: 129, g7s_3c_m: 118, g7c_2c_s: 138, g7c_2c_m: 128, g7c_3c_s: 124, g7c_3c_m: 113 },
-      { size: 70,  g1_2c_s: 131, g1_2c_m: 121, g1_3c_s: 118, g1_3c_m: 109, g2_2c_s: 167, g2_2c_m: 146, g2_3c_s: 149, g2_3c_m: 130, g3_2c_s: 192, g3_2c_m: 179, g3_3c_s: 171, g3_3c_m: 171, g4_2c_s: 221, g4_2c_m: null, g4_3c_s: 221, g4_3c_m: null, g5_2c_s: 157, g5_2c_m: 137, g5_3c_s: 131, g5_3c_m: 117, g6_2c_s: 210, g6_2c_m: 174, g6_3c_s: 170, g6_3c_m: 148, g7_2c_s: 192, g7_2c_m: 175, g7_3c_s: 171, g7_3c_m: 154, g7s_2c_s: 184, g7s_2c_m: 169, g7s_3c_s: 165, g7s_3c_m: 150, g7c_2c_s: 176, g7c_2c_m: 162, g7c_3c_s: 158, g7c_3c_m: 144 },
-      { size: 95,  g1_2c_s: 158, g1_2c_m: 145, g1_3c_s: 143, g1_3c_m: 131, g2_2c_s: 202, g2_2c_m: 175, g2_3c_s: 180, g2_3c_m: 156, g3_2c_s: 232, g3_2c_m: 216, g3_3c_s: 207, g3_3c_m: 207, g4_2c_s: 267, g4_2c_m: null, g4_3c_s: 267, g4_3c_m: null, g5_2c_s: 187, g5_2c_m: 162, g5_3c_s: 156, g5_3c_m: 139, g6_2c_s: 250, g6_2c_m: 206, g6_3c_s: 202, g6_3c_m: 175, g7_2c_s: 232, g7_2c_m: 210, g7_3c_s: 207, g7_3c_m: 185, g7s_2c_s: 223, g7s_2c_m: 203, g7s_3c_s: 200, g7s_3c_m: 180, g7c_2c_s: 214, g7c_2c_m: 195, g7c_3c_s: 192, g7c_3c_m: 173 },
-      { size: 120, g1_2c_s: 183, g1_2c_m: 167, g1_3c_s: 164, g1_3c_m: 150, g2_2c_s: 234, g2_2c_m: 202, g2_3c_s: 208, g2_3c_m: 179, g3_2c_s: 269, g3_2c_m: 249, g3_3c_s: 239, g3_3c_m: 239, g4_2c_s: 310, g4_2c_m: null, g4_3c_s: 310, g4_3c_m: null, g5_2c_s: 212, g5_2c_m: 183, g5_3c_s: 177, g5_3c_m: 158, g6_2c_s: 284, g6_2c_m: 233, g6_3c_s: 229, g6_3c_m: 198, g7_2c_s: 269, g7_2c_m: 241, g7_3c_s: 239, g7_3c_m: 212, g7s_2c_s: 259, g7s_2c_m: 235, g7s_3c_s: 233, g7s_3c_m: 209, g7c_2c_s: 248, g7c_2c_m: 226, g7c_3c_s: 223, g7c_3c_m: 200 },
-      { size: 150, g1_2c_s: 209, g1_2c_m: 191, g1_3c_s: 188, g1_3c_m: 171, g2_2c_s: 261, g2_2c_m: 224, g2_3c_s: 228, g2_3c_m: 196, g3_2c_s: 300, g3_2c_m: 285, g3_3c_s: 262, g3_3c_m: 262, g4_2c_s: 356, g4_2c_m: null, g4_3c_s: 356, g4_3c_m: null, g5_2c_s: 237, g5_2c_m: 204, g5_3c_s: 198, g5_3c_m: 176, g6_2c_s: 317, g6_2c_m: 259, g6_3c_s: 256, g6_3c_m: 221, g7_2c_s: 300, g7_2c_m: 270, g7_3c_s: 262, g7_3c_m: 236, g7s_2c_s: 299, g7s_2c_m: 263, g7s_3c_s: 258, g7s_3c_m: 232, g7c_2c_s: 287, g7c_2c_m: 252, g7c_3c_s: 247, g7c_3c_m: 222 },
-      { size: 185, g1_2c_s: 238, g1_2c_m: 216, g1_3c_s: 213, g1_3c_m: 194, g2_2c_s: 297, g2_2c_m: 256, g2_3c_s: 258, g2_3c_m: 222, g3_2c_s: 341, g3_2c_m: 322, g3_3c_s: 296, g3_3c_m: 296, g4_2c_s: 405, g4_2c_m: null, g4_3c_s: 405, g4_3c_m: null, g5_2c_s: 266, g5_2c_m: 228, g5_3c_s: 221, g5_3c_m: 197, g6_2c_s: 355, g6_2c_m: 289, g6_3c_s: 285, g6_3c_m: 246, g7_2c_s: 341, g7_2c_m: 306, g7_3c_s: 296, g7_3c_m: 268, g7s_2c_s: 341, g7s_2c_m: 298, g7s_3c_s: 292, g7s_3c_m: 264, g7c_2c_s: 327, g7c_2c_m: 286, g7c_3c_s: 280, g7c_3c_m: 253 },
-      { size: 240, g1_2c_s: 279, g1_2c_m: 253, g1_3c_s: 249, g1_3c_m: 227, g2_2c_s: 348, g2_2c_m: 299, g2_3c_s: 301, g2_3c_m: 258, g3_2c_s: 400, g3_2c_m: 380, g3_3c_s: 346, g3_3c_m: 346, g4_2c_s: 483, g4_2c_m: null, g4_3c_s: 483, g4_3c_m: null, g5_2c_s: 307, g5_2c_m: 261, g5_3c_s: 254, g5_3c_m: 226, g6_2c_s: 409, g6_2c_m: 331, g6_3c_s: 327, g6_3c_m: 282, g7_2c_s: 400, g7_2c_m: 358, g7_3c_s: 346, g7_3c_m: 312, g7s_2c_s: 406, g7s_2c_m: 351, g7s_3c_s: 344, g7s_3c_m: 310, g7c_2c_s: 389, g7c_2c_m: 337, g7c_3c_s: 330, g7c_3c_m: 297 },
-      { size: 300, g1_2c_s: 319, g1_2c_m: 291, g1_3c_s: 285, g1_3c_m: 259, g2_2c_s: 398, g2_2c_m: 343, g2_3c_s: 343, g2_3c_m: 295, g3_2c_s: 458, g3_2c_m: 435, g3_3c_s: 394, g3_3c_m: 394, g4_2c_s: 557, g4_2c_m: null, g4_3c_s: 557, g4_3c_m: null, g5_2c_s: 345, g5_2c_m: 293, g5_3c_s: 285, g5_3c_m: 253, g6_2c_s: 459, g6_2c_m: 371, g6_3c_s: 366, g6_3c_m: 315, g7_2c_s: 458, g7_2c_m: 408, g7_3c_s: 394, g7_3c_m: 353, g7s_2c_s: 469, g7s_2c_m: 401, g7s_3c_s: 392, g7s_3c_m: 351, g7c_2c_s: 450, g7c_2c_m: 384, g7c_3c_s: 376, g7c_3c_m: 337 },
-      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 546, g7_2c_m: null, g7_3c_s: 467, g7_3c_m: null, g7s_2c_s: null, g7s_2c_m: null, g7s_3c_s: null, g7s_3c_m: null, g7c_2c_s: null, g7c_2c_m: null, g7c_3c_s: null, g7c_3c_m: null },
-      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 626, g7_2c_m: null, g7_3c_s: 533, g7_3c_m: null, g7s_2c_s: null, g7s_2c_m: null, g7s_3c_s: null, g7s_3c_m: null, g7c_2c_s: null, g7c_2c_m: null, g7c_3c_s: null, g7c_3c_m: null }
-    ];
-
-    const ampacityPVC90 = [
-      { size: 1,   g1_2c_s: 11,  g1_2c_m: 10,  g1_3c_s: 10,  g1_3c_m: 9,   g2_2c_s: 13,  g2_2c_m: 11,  g2_3c_s: 11,  g2_3c_m: 10,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 16,  g4_2c_m: null, g4_3c_s: 16,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 18,  g7_2c_m: 17,  g7_3c_s: 17,  g7_3c_m: 16,  g7s_2c_s: 17,  g7s_2c_m: 15,  g7s_3c_s: 15,  g7s_3c_m: 14, g7c_2c_s: 15, g7c_2c_m: 14, g7c_3c_s: 14, g7c_3c_m: 13 },
-      { size: 1.5, g1_2c_s: 15,  g1_2c_m: 13,  g1_3c_s: 13,  g1_3c_m: 12,  g2_2c_s: 17,  g2_2c_m: 14,  g2_3c_s: 15,  g2_3c_m: 13,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 22,  g4_2c_m: null, g4_3c_s: 22,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 25,  g7_2c_m: 23,  g7_3c_s: 23,  g7_3c_m: 21,  g7s_2c_s: 22,  g7s_2c_m: 20,  g7s_3c_s: 19,  g7s_3c_m: 18, g7c_2c_s: 19, g7c_2c_m: 18, g7c_3c_s: 18, g7c_3c_m: 16 },
-      { size: 2.5, g1_2c_s: 20,  g1_2c_m: 17,  g1_3c_s: 18,  g1_3c_m: 16,  g2_2c_s: 24,  g2_2c_m: 20,  g2_3c_s: 20,  g2_3c_m: 18,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 30,  g4_2c_m: null, g4_3c_s: 30,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 34,  g7_2c_m: 31,  g7_3c_s: 31,  g7_3c_m: 28,  g7s_2c_s: 29,  g7s_2c_m: 27,  g7s_3c_s: 26,  g7s_3c_m: 24, g7c_2c_s: 26, g7c_2c_m: 24, g7c_3c_s: 25, g7c_3c_m: 23 },
-      { size: 4,   g1_2c_s: 26,  g1_2c_m: 23,  g1_3c_s: 23,  g1_3c_m: 21,  g2_2c_s: 31,  g2_2c_m: 26,  g2_3c_s: 27,  g2_3c_m: 24,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 40,  g4_2c_m: null, g4_3c_s: 40,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 46,  g7_2c_m: 42,  g7_3c_s: 42,  g7_3c_m: 38,  g7s_2c_s: 39,  g7s_2c_m: 36,  g7s_3c_s: 35,  g7s_3c_m: 33, g7c_2c_s: 35, g7c_2c_m: 32, g7c_3c_s: 33, g7c_3c_m: 30 },
-      { size: 6,   g1_2c_s: 34,  g1_2c_m: 30,  g1_3c_s: 30,  g1_3c_m: 27,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 31,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 59,  g7_2c_m: 54,  g7_3c_s: 54,  g7_3c_m: 49,  g7s_2c_s: 49,  g7s_2c_m: 46,  g7s_3c_s: 44,  g7s_3c_m: 41, g7c_2c_s: 45, g7c_2c_m: 41, g7c_3c_s: 42, g7c_3c_m: 39 },
-      { size: 10,  g1_2c_s: 46,  g1_2c_m: 40,  g1_3c_s: 41,  g1_3c_m: 37,  g2_2c_s: 56,  g2_2c_m: 47,  g2_3c_s: 49,  g2_3c_m: 42,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 71,  g4_2c_m: null, g4_3c_s: 71,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 81,  g7_2c_m: 75,  g7_3c_s: 75,  g7_3c_m: 67,  g7s_2c_s: 67,  g7s_2c_m: 63,  g7s_3c_s: 60,  g7s_3c_m: 56, g7c_2c_s: 61, g7c_2c_m: 57, g7c_3c_s: 57, g7c_3c_m: 53 },
-      { size: 16,  g1_2c_s: 61,  g1_2c_m: 54,  g1_3c_s: 54,  g1_3c_m: 49,  g2_2c_s: 74,  g2_2c_m: 63,  g2_3c_s: 65,  g2_3c_m: 56,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 96,  g4_2c_m: null, g4_3c_s: 96,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 109, g7_2c_m: 100, g7_3c_s: 100, g7_3c_m: 89,  g7s_2c_s: 89,  g7s_2c_m: 83,  g7s_3c_s: 80,  g7s_3c_m: 75, g7c_2c_s: 82, g7c_2c_m: 75, g7c_3c_s: 77, g7c_3c_m: 70 },
-      { size: 25,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 64,  g2_2c_s: 99,  g2_2c_m: 82,  g2_3c_s: 86,  g2_3c_m: 74,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 126, g4_2c_m: null, g4_3c_s: 126, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 143, g7_2c_m: 133, g7_3c_s: 133, g7_3c_m: 118, g7s_2c_s: 118, g7s_2c_m: 108, g7s_3c_s: 106, g7s_3c_m: 98, g7c_2c_s: 109, g7c_2c_m: 100, g7c_3c_s: 102, g7c_3c_m: 92 },
-      { size: 35,  g1_2c_s: 98,  g1_2c_m: 86,  g1_3c_s: 86,  g1_3c_m: 78,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 106, g2_3c_m: 90,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 176, g7_2c_m: 161, g7_3c_s: 164, g7_3c_m: 145, g7s_2c_s: 145, g7s_2c_m: 132, g7s_3c_s: 130, g7s_3c_m: 120, g7c_2c_s: 135, g7c_2c_m: 123, g7c_3c_s: 127, g7c_3c_m: 113 },
-      { size: 50,  g1_2c_s: 119, g1_2c_m: 104, g1_3c_s: 105, g1_3c_m: 94,  g2_2c_s: 147, g2_2c_m: 121, g2_3c_s: 128, g2_3c_m: 108, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 214, g7_2c_m: 196, g7_3c_s: 200, g7_3c_m: 175, g7s_2c_s: 175, g7s_2c_m: 158, g7s_3c_s: 157, g7s_3c_m: 144, g7c_2c_s: 163, g7c_2c_m: 146, g7c_3c_s: 153, g7c_3c_m: 134 },
-      { size: 70,  g1_2c_s: 149, g1_2c_m: 130, g1_3c_s: 132, g1_3c_m: 119, g2_2c_s: 187, g2_2c_m: 153, g2_3c_s: 163, g2_3c_m: 136, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 242, g4_2c_m: null, g4_3c_s: 242, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 275, g7_2c_m: 251, g7_3c_s: 256, g7_3c_m: 224, g7s_2c_s: 224, g7s_2c_m: 201, g7s_3c_s: 201, g7s_3c_m: 184, g7c_2c_s: 209, g7c_2c_m: 187, g7c_3c_s: 196, g7c_3c_m: 172 },
-      { size: 95,  g1_2c_s: 180, g1_2c_m: 156, g1_3c_s: 160, g1_3c_m: 143, g2_2c_s: 226, g2_2c_m: 184, g2_3c_s: 198, g2_3c_m: 164, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 293, g4_2c_m: null, g4_3c_s: 293, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 334, g7_2c_m: 304, g7_3c_s: 312, g7_3c_m: 271, g7s_2c_s: 271, g7s_2c_m: 242, g7s_3c_s: 243, g7s_3c_m: 220, g7c_2c_s: 254, g7c_2c_m: 226, g7c_3c_s: 238, g7c_3c_m: 207 },
-      { size: 120, g1_2c_s: 209, g1_2c_m: 180, g1_3c_s: 184, g1_3c_m: 164, g2_2c_s: 262, g2_2c_m: 212, g2_3c_s: 229, g2_3c_m: 188, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 339, g4_2c_m: null, g4_3c_s: 339, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 389, g7_2c_m: 352, g7_3c_s: 363, g7_3c_m: 314, g7s_2c_s: 314, g7s_2c_m: 278, g7s_3c_s: 281, g7s_3c_m: 251, g7c_2c_s: 295, g7c_2c_m: 260, g7c_3c_s: 277, g7c_3c_m: 239 },
-      { size: 150, g1_2c_s: 238, g1_2c_m: 205, g1_3c_s: 211, g1_3c_m: 187, g2_2c_s: 293, g2_2c_m: 235, g2_3c_s: 251, g2_3c_m: 205, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 389, g4_2c_m: null, g4_3c_s: 389, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 446, g7_2c_m: 406, g7_3c_s: 417, g7_3c_m: 361, g7s_2c_s: 361, g7s_2c_m: 316, g7s_3c_s: 318, g7s_3c_m: 282, g7c_2c_s: 339, g7c_2c_m: 297, g7c_3c_s: 319, g7c_3c_m: 273 },
-      { size: 185, g1_2c_s: 271, g1_2c_m: 232, g1_3c_s: 240, g1_3c_m: 212, g2_2c_s: 333, g2_2c_m: 268, g2_3c_s: 284, g2_3c_m: 232, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 444, g4_2c_m: null, g4_3c_s: 444, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 512, g7_2c_m: 463, g7_3c_s: 479, g7_3c_m: 412, g7s_2c_s: 412, g7s_2c_m: 358, g7s_3c_s: 359, g7s_3c_m: 317, g7c_2c_s: 388, g7c_2c_m: 339, g7c_3c_s: 364, g7c_3c_m: 311 },
-      { size: 240, g1_2c_s: 318, g1_2c_m: 271, g1_3c_s: 281, g1_3c_m: 248, g2_2c_s: 391, g2_2c_m: 313, g2_3c_s: 331, g2_3c_m: 270, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 530, g4_2c_m: null, g4_3c_s: 530, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 607, g7_2c_m: 546, g7_3c_s: 569, g7_3c_m: 484, g7s_2c_s: 484, g7s_2c_m: 419, g7s_3c_s: 416, g7s_3c_m: 364, g7c_2c_s: 461, g7c_2c_m: 400, g7c_3c_s: 433, g7c_3c_m: 367 },
-      { size: 300, g1_2c_s: 364, g1_2c_m: 311, g1_3c_s: 322, g1_3c_m: 283, g2_2c_s: 447, g2_2c_m: 359, g2_3c_s: 377, g2_3c_m: 308, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 611, g4_2c_m: null, g4_3c_s: 611, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 698, g7_2c_m: 629, g7_3c_s: 655, g7_3c_m: 558, g7s_2c_s: 558, g7s_2c_m: 479, g7s_3c_s: 477, g7s_3c_m: 415, g7c_2c_s: 531, g7c_2c_m: 459, g7c_3c_s: 499, g7c_3c_m: 422 },
-      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666, g7s_2c_m: 599, g7s_3c_s: 626, g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
-      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768, g7s_2c_m: 692, g7s_3c_s: 722, g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
-    ];
-
-    const ampacityXLPE = [
-      { size: 1,   g1_2c_s: 15,  g1_2c_m: 14,  g1_3c_s: 13,  g1_3c_m: 12,  g2_2c_s: 18,  g2_2c_m: 15,  g2_3c_s: 15,  g2_3c_m: 13,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 21,  g4_2c_m: null, g4_3c_s: 21,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 17, g7_2c_m: 17, g7_3c_s: 16, g7_3c_m: 16, g7s_2c_s: 20,  g7s_2c_m: 17,  g7s_3c_s: 17,  g7s_3c_m: 16, g7c_2c_s: 18, g7c_2c_m: 16, g7c_3c_s: 17, g7c_3c_m: 15 },
-      { size: 1.5, g1_2c_s: 20,  g1_2c_m: 18,  g1_3c_s: 17,  g1_3c_m: 15,  g2_2c_s: 23,  g2_2c_m: 19,  g2_3c_s: 20,  g2_3c_m: 17,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 28,  g4_2c_m: null, g4_3c_s: 28,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 23, g7_2c_m: 23, g7_3c_s: 21, g7_3c_m: 21, g7s_2c_s: 26,  g7s_2c_m: 23,  g7s_3c_s: 22,  g7s_3c_m: 21, g7c_2c_s: 24, g7c_2c_m: 22, g7c_3c_s: 23, g7c_3c_m: 20 },
-      { size: 2.5, g1_2c_s: 27,  g1_2c_m: 24,  g1_3c_s: 24,  g1_3c_m: 21,  g2_2c_s: 31,  g2_2c_m: 26,  g2_3c_s: 27,  g2_3c_m: 23,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 39,  g4_2c_m: null, g4_3c_s: 39,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 34, g7_2c_m: 31, g7_3c_s: 31, g7_3c_m: 28, g7s_2c_s: 34,  g7s_2c_m: 31,  g7s_3c_s: 29,  g7s_3c_m: 28, g7c_2c_s: 32, g7c_2c_m: 29, g7c_3c_s: 30, g7c_3c_m: 27 },
-      { size: 4,   g1_2c_s: 35,  g1_2c_m: 31,  g1_3c_s: 31,  g1_3c_m: 28,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 30,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42, g7_2c_m: 42, g7_3c_s: 38, g7_3c_m: 38, g7s_2c_s: 45,  g7s_2c_m: 41,  g7s_3c_s: 38,  g7s_3c_m: 37, g7c_2c_s: 43, g7c_2c_m: 39, g7c_3c_s: 40, g7c_3c_m: 36 },
-      { size: 6,   g1_2c_s: 45,  g1_2c_m: 40,  g1_3c_s: 40,  g1_3c_m: 35,  g2_2c_s: 52,  g2_2c_m: 43,  g2_3c_s: 45,  g2_3c_m: 38,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 54, g7_2c_m: 54, g7_3c_s: 49, g7_3c_m: 49, g7s_2c_s: 57,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 47, g7c_2c_s: 55, g7c_2c_m: 49, g7c_3c_s: 52, g7c_3c_m: 46 },
-      { size: 10,  g1_2c_s: 61,  g1_2c_m: 53,  g1_3c_s: 54,  g1_3c_m: 47,  g2_2c_s: 71,  g2_2c_m: 59,  g2_3c_s: 60,  g2_3c_m: 51,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 90,  g4_2c_m: null, g4_3c_s: 90,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 74, g7_2c_m: 74, g7_3c_s: 67, g7_3c_m: 67, g7s_2c_s: 78,  g7s_2c_m: 71,  g7s_3c_s: 67,  g7s_3c_m: 63, g7c_2c_s: 74, g7c_2c_m: 67, g7c_3c_s: 70, g7c_3c_m: 62 },
-      { size: 16,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 62,  g2_2c_s: 93,  g2_2c_m: 77,  g2_3c_s: 79,  g2_3c_m: 67,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 120, g4_2c_m: null, g4_3c_s: 120, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 98, g7_2c_m: 98, g7_3c_s: 89, g7_3c_m: 89, g7s_2c_s: 102, g7s_2c_m: 93, g7s_3c_s: 89, g7s_3c_m: 83, g7c_2c_s: 99, g7c_2c_m: 89, g7c_3c_s: 93, g7c_3c_m: 83 },
-      { size: 25,  g1_2c_s: 105, g1_2c_m: 91,  g1_3c_s: 93,  g1_3c_m: 81,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 104, g2_3c_m: 88,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 129, g7_2c_m: 129, g7_3c_s: 117, g7_3c_m: 117, g7s_2c_s: 135, g7s_2c_m: 123, g7s_3c_s: 117, g7s_3c_m: 108, g7c_2c_s: 131, g7c_2c_m: 116, g7c_3c_s: 123, g7c_3c_m: 108 },
-      { size: 35,  g1_2c_s: 128, g1_2c_m: 111, g1_3c_s: 113, g1_3c_m: 98,  g2_2c_s: 149, g2_2c_m: 123, g2_3c_s: 127, g2_3c_m: 107, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 158, g7_2c_m: 158, g7_3c_s: 143, g7_3c_m: 143, g7s_2c_s: 165, g7s_2c_m: 149, g7s_3c_s: 143, g7s_3c_m: 131, g7c_2c_s: 161, g7c_2c_m: 142, g7c_3c_s: 151, g7c_3c_m: 132 },
-      { size: 50,  g1_2c_s: 154, g1_2c_m: 133, g1_3c_s: 136, g1_3c_m: 118, g2_2c_s: 180, g2_2c_m: 147, g2_3c_s: 153, g2_3c_m: 128, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 232, g4_2c_m: null, g4_3c_s: 232, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 192, g7_2c_m: 192, g7_3c_s: 174, g7_3c_m: 174, g7s_2c_s: 199, g7s_2c_m: 178, g7s_3c_s: 174, g7s_3c_m: 158, g7c_2c_s: 195, g7c_2c_m: 171, g7c_3c_s: 183, g7c_3c_m: 158 },
-      { size: 70,  g1_2c_s: 194, g1_2c_m: 167, g1_3c_s: 170, g1_3c_m: 148, g2_2c_s: 226, g2_2c_m: 184, g2_3c_s: 193, g2_3c_m: 162, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 292, g4_2c_m: null, g4_3c_s: 292, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 243, g7_2c_m: 243, g7_3c_s: 220, g7_3c_m: 220, g7s_2c_s: 253, g7s_2c_m: 226, g7s_3c_s: 220, g7s_3c_m: 198, g7c_2c_s: 248, g7c_2c_m: 218, g7c_3c_s: 233, g7c_3c_m: 202 },
-      { size: 95,  g1_2c_s: 233, g1_2c_m: 200, g1_3c_s: 205, g1_3c_m: 177, g2_2c_s: 272, g2_2c_m: 221, g2_3c_s: 233, g2_3c_m: 194, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 354, g4_2c_m: null, g4_3c_s: 354, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 295, g7_2c_m: 295, g7_3c_s: 267, g7_3c_m: 267, g7s_2c_s: 308, g7s_2c_m: 273, g7s_3c_s: 267, g7s_3c_m: 241, g7c_2c_s: 301, g7c_2c_m: 263, g7c_3c_s: 283, g7c_3c_m: 243 },
-      { size: 120, g1_2c_s: 268, g1_2c_m: 230, g1_3c_s: 235, g1_3c_m: 203, g2_2c_s: 313, g2_2c_m: 252, g2_3c_s: 268, g2_3c_m: 222, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 410, g4_2c_m: null, g4_3c_s: 410, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 341, g7_2c_m: 341, g7_3c_s: 309, g7_3c_m: 309, g7s_2c_s: 356, g7s_2c_m: 315, g7s_3c_s: 309, g7s_3c_m: 277, g7c_2c_s: 349, g7c_2c_m: 304, g7c_3c_s: 328, g7c_3c_m: 281 },
-      { size: 150, g1_2c_s: 305, g1_2c_m: 261, g1_3c_s: 267, g1_3c_m: 230, g2_2c_s: 355, g2_2c_m: 285, g2_3c_s: 304, g2_3c_m: 251, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 471, g4_2c_m: null, g4_3c_s: 471, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 388, g7_2c_m: 388, g7_3c_s: 351, g7_3c_m: 351, g7s_2c_s: 405, g7s_2c_m: 358, g7s_3c_s: 351, g7s_3c_m: 314, g7c_2c_s: 400, g7c_2c_m: 347, g7c_3c_s: 376, g7c_3c_m: 321 },
-      { size: 185, g1_2c_s: 345, g1_2c_m: 294, g1_3c_s: 301, g1_3c_m: 259, g2_2c_s: 402, g2_2c_m: 321, g2_3c_s: 343, g2_3c_m: 282, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 538, g4_2c_m: null, g4_3c_s: 538, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 444, g7_2c_m: 444, g7_3c_s: 402, g7_3c_m: 402, g7s_2c_s: 463, g7s_2c_m: 406, g7s_3c_s: 402, g7s_3c_m: 358, g7c_2c_s: 457, g7c_2c_m: 395, g7c_3c_s: 430, g7c_3c_m: 365 },
-      { size: 240, g1_2c_s: 404, g1_2c_m: 342, g1_3c_s: 351, g1_3c_m: 301, g2_2c_s: 470, g2_2c_m: 372, g2_3c_s: 399, g2_3c_m: 327, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 641, g4_2c_m: null, g4_3c_s: 641, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 524, g7_2c_m: 524, g7_3c_s: 474, g7_3c_m: 474, g7s_2c_s: 546, g7s_2c_m: 477, g7s_3c_s: 474, g7s_3c_m: 419, g7c_2c_s: 541, g7c_2c_m: 464, g7c_3c_s: 508, g7c_3c_m: 429 },
-      { size: 300, g1_2c_s: 461, g1_2c_m: 390, g1_3c_s: 400, g1_3c_m: 342, g2_2c_s: 535, g2_2c_m: 422, g2_3c_s: 453, g2_3c_m: 371, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 739, g4_2c_m: null, g4_3c_s: 739, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 604, g7_2c_m: 604, g7_3c_s: 547, g7_3c_m: 547, g7s_2c_s: 629, g7s_2c_m: 547, g7s_3c_s: 547, g7s_3c_m: 479, g7c_2c_s: 624, g7c_2c_m: 532, g7c_3c_s: 586, g7c_3c_m: 492 },
-      { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 475, g2_2c_m: null, g2_3c_s: 406, g2_3c_m: null, g3_2c_s: 546, g3_2c_m: 519, g3_3c_s: 467, g3_3c_m: 467, g4_2c_s: 663, g4_2c_m: null, g4_3c_s: 663, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 719, g7_2c_m: 719, g7_3c_s: 650, g7_3c_m: 650, g7s_2c_s: 666, g7s_2c_m: 599, g7s_3c_s: 626, g7s_3c_m: 528, g7c_2c_s: 744, g7c_2c_m: null, g7c_3c_s: 699, g7c_3c_m: null },
-      { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: 545, g2_2c_m: null, g2_3c_s: 464, g2_3c_m: null, g3_2c_s: 626, g3_2c_m: 595, g3_3c_s: 533, g3_3c_m: 533, g4_2c_s: 761, g4_2c_m: null, g4_3c_s: 761, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 827, g7_2c_m: 827, g7_3c_s: 749, g7_3c_m: 749, g7s_2c_s: 768, g7s_2c_m: 692, g7s_3c_s: 722, g7s_3c_m: 609, g7c_2c_s: 859, g7c_2c_m: null, g7c_3c_s: 807, g7c_3c_m: null }
-    ];
-
-    // ================= State & Logic =================
-    function init() {
-      // Setup Temperature Options
-      const tempSelect = document.getElementById('temperature');
-      const tempOptions = Object.keys(tempDeratingAir);
-      tempOptions.forEach(t => {
-        let opt = document.createElement('option');
-        opt.value = t;
-        opt.text = t;
-        if(t === '36-40') opt.selected = true;
-        tempSelect.appendChild(opt);
-      });
-
-      // Setup Circuit Group Options
-      const cgSelect = document.getElementById('circuitGroup');
-      const cgOptions = Object.keys(groupDerating);
-      cgOptions.forEach(g => {
-        let opt = document.createElement('option');
-        opt.value = g;
-        opt.text = g;
-        if(g === '1') opt.selected = true;
-        cgSelect.appendChild(opt);
-      });
-
-      // Setup Install Group Options
-      const igSelect = document.getElementById('installGroup');
-      const installGroups = [
-        'กลุ่ม 1: เดินช่องเดินสายภายในฝ้าเพดาน/ผนังกันไฟ',
-        'กลุ่ม 2: เดินในช่องเดินสาย เกาะผนัง/เพดาน/ฝังคอนกรีต',
-        'กลุ่ม 3: เดินเกาะผนัง/เพดาน ไม่มีสิ่งปิดหุ้ม',
-        'กลุ่ม 4: เดินบนฉนวนลูกถ้วยในอากาศ',
-        'กลุ่ม 5: เดินในท่อฝังดิน',
-        'กลุ่ม 6: ฝังดินโดยตรง',
-        'กลุ่ม 7: วางบนรางเคเบิล (Cable Tray)'
-      ];
-      installGroups.forEach(ig => {
-        let opt = document.createElement('option');
-        opt.value = ig;
-        opt.text = ig;
-        igSelect.appendChild(opt);
-      });
-
-      // Add Event Listeners
-      const inputs = ['phase', 'voltage', 'cbSize', 'installType', 'insulation', 'coreType', 'installGroup', 'trayType', 'temperature', 'circuitGroup'];
-      inputs.forEach(id => {
-        document.getElementById(id).addEventListener('change', calculate);
-      });
-      document.getElementById('voltage').addEventListener('input', () => {
-        document.getElementById('displayVoltage').innerText = (document.getElementById('voltage').value || 0) + ' V';
-        calculate();
-      });
-      document.getElementById('loadCurrent').addEventListener('input', onLoadChange);
-
-      // Initial Calculation
-      calculate();
-    }
-
-    function onLoadChange(e) {
-      const val = e.target.value;
-      const standardCB = [10, 16, 20, 25, 32, 40, 50, 63];
-      const cbEl = document.getElementById('cbSize');
-
-      document.getElementById('displayLoadCurrent').innerText = val || 0;
-      
-      if (val && !isNaN(val)) {
-        const targetCB = parseFloat(val) * 1.25;
-        const matchedCB = standardCB.find(size => size >= targetCB);
-        cbEl.value = matchedCB ? matchedCB : Math.ceil(targetCB);
-      } else if (val === '') {
-        cbEl.value = '';
-      }
-      
-      calculate();
-    }
-
-    function calculate() {
-      const phase = document.getElementById('phase').value;
-      const loadCurrent = document.getElementById('loadCurrent').value;
-      const cbSize = document.getElementById('cbSize').value;
-      const insulation = document.getElementById('insulation').value;
-      const coreType = document.getElementById('coreType').value;
-      const installType = document.getElementById('installType').value;
-      const installGroup = document.getElementById('installGroup').value;
-      const trayType = document.getElementById('trayType').value;
-      const temperature = document.getElementById('temperature').value;
-      const circuitGroup = document.getElementById('circuitGroup').value;
-
-      // Update basic display info
-      document.getElementById('displayCbSize').innerText = (cbSize || '-') + ' A';
-      document.getElementById('displayInsulation').innerText = insulation;
-      document.getElementById('displayCoreType').innerText = coreType;
-      document.getElementById('displayInstallGroup').innerText = installGroup.split(':')[0];
-
-      // Show/Hide Tray Type Option
-      const trayTypeContainer = document.getElementById('trayTypeContainer');
-      if (installGroup.includes('กลุ่ม 7')) {
-        trayTypeContainer.style.display = 'block';
-      } else {
-        trayTypeContainer.style.display = 'none';
-      }
-
-      // 1. Calculate Ct (Temperature)
-      let ctVal = null;
-      if (installType === 'เดินอากาศ') {
-        ctVal = tempDeratingAir[temperature]?.[insulation];
-      } else if (installType === 'เดินใต้ดิน') {
-        ctVal = tempDeratingUnderground[temperature]?.[insulation];
-      }
-      
-      const displayCtEl = document.getElementById('displayCt');
-      const displayCtErrorEl = document.getElementById('displayCtError');
-      if (ctVal !== null && ctVal !== undefined) {
-        displayCtEl.innerText = ctVal;
-        displayCtEl.className = 'font-bold text-blue-600';
-        displayCtErrorEl.style.display = 'none';
-      } else {
-        ctVal = '-';
-        displayCtEl.innerText = '-';
-        displayCtEl.className = 'font-bold text-red-500';
-        displayCtErrorEl.style.display = 'block';
-      }
-
-      // 2. Calculate Cg (Circuit Group)
-      const isSurface = installGroup.includes('กลุ่ม 3') || installGroup.includes('กลุ่ม 4');
-      const cgType = isSurface ? 'surface' : 'enclosed';
-      let cgVal = groupDerating[circuitGroup]?.[cgType];
-      if(cgVal === undefined) cgVal = 1.0;
-      document.getElementById('displayCg').innerText = cgVal.toFixed(2);
-
-      // Total Derating Display
-      const displayDeratingEl = document.getElementById('displayDerating');
-      if (ctVal !== '-') {
-        displayDeratingEl.innerText = 'ตัวคูณรวม (Derating) = ' + (ctVal * cgVal).toFixed(2);
-      } else {
-        displayDeratingEl.innerText = 'ตัวคูณรวม (Derating) = N/A';
-      }
-
-      // 3. Find Cable Size
-      const displayResultValue = document.getElementById('displayResultValue');
-      const displayResultUnit = document.getElementById('displayResultUnit');
-      const displayCableSize = document.getElementById('displayCableSize');
-      const targetAmpContainer = document.getElementById('targetAmpacityContainer');
-      const targetAmpDisplay = document.getElementById('displayTargetAmpacity');
-
-      if (loadCurrent && ctVal !== '-' && cgVal) {
-        // Required Ampacity = Load / (Ct * Cg)
-        const requiredAmp = parseFloat(loadCurrent) / (ctVal * cgVal);
-        targetAmpContainer.style.display = 'inline-block';
-        targetAmpDisplay.innerText = requiredAmp.toFixed(2);
-
-        // Select DB
-        let selectedDB = null;
-        if (insulation === 'PVC 70°C') selectedDB = ampacityPVC70;
-        else if (insulation === 'PVC 90°C') selectedDB = ampacityPVC90;
-        else if (insulation === 'XLPE') selectedDB = ampacityXLPE;
-
-        let isTrayValid = true;
-        if (installGroup.includes('กลุ่ม 7')) {
-          if (trayType !== 'รางเคเบิลแบบบันได (ไม่มีฝาปิด)' && trayType !== 'รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)' && trayType !== 'รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)') {
-            isTrayValid = false;
-          }
-        }
-
-        if (isTrayValid && selectedDB && (
-          installGroup.includes('กลุ่ม 1') || 
-          installGroup.includes('กลุ่ม 2') || 
-          installGroup.includes('กลุ่ม 3') || 
-          installGroup.includes('กลุ่ม 4') ||
-          installGroup.includes('กลุ่ม 5') ||
-          installGroup.includes('กลุ่ม 6') ||
-          installGroup.includes('กลุ่ม 7')
-        )) {
-          
-          let g = '1';
-          if (installGroup.includes('กลุ่ม 2')) g = '2';
-          if (installGroup.includes('กลุ่ม 3')) g = '3';
-          if (installGroup.includes('กลุ่ม 4')) g = '4';
-          if (installGroup.includes('กลุ่ม 5')) g = '5';
-          if (installGroup.includes('กลุ่ม 6')) g = '6';
-          if (installGroup.includes('กลุ่ม 7')) {
-            g = '7';
-            if (trayType === 'รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)') {
-              g = '7s';
-            } else if (trayType === 'รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)') {
-              g = '7c';
+          const handleLoadChange = (e) => {
+            const val = e.target.value;
+            setLoadCurrent(val);
+            if (val && !isNaN(val)) {
+              const targetCB = parseFloat(val) * 1.25;
+              const matchedCB = standardCB.find(size => size >= targetCB);
+              setCbSize(matchedCB ? matchedCB : Math.ceil(targetCB));
+            } else if (val === '') {
+              setCbSize('');
             }
-          }
+          };
 
-          const p = phase === 'AC 3-Phase' ? '3' : '2';
-          const c = coreType === 'Single Core' ? 's' : 'm';
-          
-          const lookupKey = `g${g}_${p}c_${c}`;
+          useEffect(() => {
+            let ctVal = null;
+            if (installType === 'เดินอากาศ') {
+              ctVal = tempDeratingAir[temperature]?.[insulation];
+            } else if (installType === 'เดินใต้ดิน') {
+              ctVal = tempDeratingUnderground[temperature]?.[insulation];
+            }
+            setCurrentCt(ctVal !== null && ctVal !== undefined ? ctVal : '-');
 
-          const matchedCable = selectedDB.find(item => item[lookupKey] !== null && item[lookupKey] !== undefined && item[lookupKey] >= requiredAmp);
-          
-          if (matchedCable) {
-            displayResultValue.innerText = matchedCable.size;
-            displayResultUnit.innerText = 'mm²';
-            displayCableSize.innerText = matchedCable.size;
-          } else {
-            displayResultValue.innerText = 'เกินขนาด';
-            displayResultUnit.innerText = '';
-            displayCableSize.innerText = '...';
-          }
-        } else if (!isTrayValid) {
-           displayResultValue.innerText = 'N/A (รอข้อมูลตารางลักษณะรางเคเบิ้ลนี้)';
-           displayResultUnit.innerText = '';
-           displayCableSize.innerText = '...';
-        } else {
-           displayResultValue.innerText = 'N/A (รอข้อมูลตาราง)';
-           displayResultUnit.innerText = '';
-           displayCableSize.innerText = '...';
+            const isSurface = installGroup.includes('กลุ่ม 3') || installGroup.includes('กลุ่ม 4');
+            const cgType = isSurface ? 'surface' : 'enclosed';
+            const cgVal = groupDerating[circuitGroup]?.[cgType];
+            setCurrentCg(cgVal !== undefined ? cgVal : 1.0);
+
+            if (loadCurrent && ctVal && ctVal !== '-' && cgVal) {
+              const requiredAmp = parseFloat(loadCurrent) / (ctVal * cgVal);
+              setTargetAmpacity(requiredAmp);
+
+              let selectedDB = null;
+              if (insulation === 'PVC 70°C') selectedDB = ampacityPVC70;
+              else if (insulation === 'PVC 90°C') selectedDB = ampacityPVC90;
+              else if (insulation === 'XLPE') selectedDB = ampacityXLPE;
+
+              let isTrayValid = true;
+              if (installGroup.includes('กลุ่ม 7')) {
+                if (trayType !== 'รางเคเบิลแบบบันได (ไม่มีฝาปิด)' && trayType !== 'รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)' && trayType !== 'รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)') {
+                  isTrayValid = false;
+                }
+              }
+
+              if (isTrayValid && selectedDB && (
+                installGroup.includes('กลุ่ม 1') || 
+                installGroup.includes('กลุ่ม 2') || 
+                installGroup.includes('กลุ่ม 3') || 
+                installGroup.includes('กลุ่ม 4') ||
+                installGroup.includes('กลุ่ม 5') ||
+                installGroup.includes('กลุ่ม 6') ||
+                installGroup.includes('กลุ่ม 7')
+              )) {
+                
+                let g = '1';
+                if (installGroup.includes('กลุ่ม 2')) g = '2';
+                if (installGroup.includes('กลุ่ม 3')) g = '3';
+                if (installGroup.includes('กลุ่ม 4')) g = '4';
+                if (installGroup.includes('กลุ่ม 5')) g = '5';
+                if (installGroup.includes('กลุ่ม 6')) g = '6';
+                if (installGroup.includes('กลุ่ม 7')) {
+                  g = '7';
+                  if (trayType === 'รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)') {
+                    g = '7s';
+                  } else if (trayType === 'รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)') {
+                    g = '7c';
+                  }
+                }
+
+                const p = phase === 'AC 3-Phase' ? '3' : '2';
+                const c = coreType === 'Single Core' ? 's' : 'm';
+                const lookupKey = `g${g}_${p}c_${c}`;
+
+                const matchedCable = selectedDB.find(item => item[lookupKey] !== null && item[lookupKey] !== undefined && item[lookupKey] >= requiredAmp);
+                
+                if (matchedCable) {
+                  setCalculatedCableSize(matchedCable.size);
+                } else {
+                  setCalculatedCableSize('เกินขนาด');
+                }
+              } else if (!isTrayValid) {
+                 setCalculatedCableSize('N/A (รอข้อมูลตารางลักษณะรางเคเบิ้ลนี้)');
+              } else {
+                 setCalculatedCableSize('N/A (รอข้อมูลตาราง)');
+              }
+            } else {
+              setCalculatedCableSize(null);
+              setTargetAmpacity(0);
+            }
+          }, [loadCurrent, temperature, insulation, installType, installGroup, trayType, circuitGroup, phase, coreType]);
+
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
+              
+              {/* Left Column (col-span-8) - inputs & diagram */}
+              <div className="lg:col-span-8 space-y-6">
+                
+                {/* Diagram แสดงผล */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                  <div className="flex flex-col md:flex-row items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600">
+                    <div className="flex flex-col items-center bg-blue-100 p-4 rounded-lg border border-blue-200 w-full md:w-auto mb-2 md:mb-0 shadow-sm">
+                      <span className="text-blue-800 font-bold text-xl">LP</span>
+                      <span className="text-slate-700 mt-1">{voltage || 0} V</span>
+                    </div>
+                    
+                    <div className="text-xl text-slate-400 hidden md:block">➔</div>
+                    
+                    <div className="flex flex-col items-center p-3 border-2 border-dashed border-blue-300 bg-white rounded-lg w-full md:w-auto mb-2 md:mb-0 relative">
+                      <div className="absolute -top-3 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full">CB</div>
+                      <span className="font-bold text-slate-800 text-lg mt-2">{cbSize || '-'} A</span>
+                    </div>
+
+                    <div className="text-xl text-slate-400 hidden md:block">➔</div>
+
+                    <div className="flex flex-col items-center p-4 bg-white border border-slate-200 rounded-lg w-full md:w-auto mb-2 md:mb-0 flex-1 mx-0 md:mx-4 shadow-sm text-center">
+                      <span className="font-bold text-slate-700 text-base mb-1">
+                        สาย {calculatedCableSize !== null ? calculatedCableSize : '...'} mm² ({insulation} {coreType})
+                      </span>
+                      <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{installGroup.split(':')[0]}</span>
+                    </div>
+
+                    <div className="text-xl text-slate-400 hidden md:block">➔</div>
+
+                    <div className="flex flex-col items-center bg-red-50 p-4 rounded-lg border border-red-200 w-full md:w-auto shadow-sm">
+                      <span className="text-red-700 font-bold text-xl">Load</span>
+                      <span className="text-slate-700 mt-1">{loadCurrent || 0} A</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 1: System & Load */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                  <h2 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                    <div className="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+                    ข้อมูลระบบไฟฟ้าและโหลด (System & Load)
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ระบบไฟฟ้า (Phase)</label>
+                      <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white" value={phase} onChange={e => setPhase(e.target.value)}>
+                        <option>AC 3-Phase</option>
+                        <option>AC 1-Phase</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">แรงดันไฟฟ้า (Voltage - V)</label>
+                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white" value={voltage} onChange={e => setVoltage(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">กระแสโหลด (Current - A)</label>
+                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-yellow-50" placeholder="กรอกกระแส..." value={loadCurrent} onChange={handleLoadChange} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ขนาดเซอร์กิตเบรกเกอร์ (CB - A)</label>
+                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-green-50" 
+                        value={cbSize} 
+                        onChange={e => setCbSize(e.target.value)}
+                        placeholder="กรอกขนาด CB..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Cable & Installation */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                  <h2 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                    <div className="w-1.5 h-5 bg-green-500 rounded-full"></div>
+                    ข้อมูลสายและการติดตั้ง (Cable & Installation)
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ลักษณะการติดตั้ง</label>
+                      <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white" value={installType} onChange={e => setInstallType(e.target.value)}>
+                        <option>เดินอากาศ</option>
+                        <option>เดินใต้ดิน</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ฉนวน (Material)</label>
+                      <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white" value={insulation} onChange={e => setInsulation(e.target.value)}>
+                        <option>PVC 70°C</option>
+                        <option>PVC 90°C</option>
+                        <option>XLPE</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">แกน (Core Type)</label>
+                      <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white" value={coreType} onChange={e => setCoreType(e.target.value)}>
+                        <option>Single Core</option>
+                        <option>Multi Core</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">กลุ่มการติดตั้ง (Installation Group)</label>
+                      <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 text-sm md:text-base bg-white" value={installGroup} onChange={e => setInstallGroup(e.target.value)}>
+                        {installGroups.map((group, idx) => <option key={idx}>{group}</option>)}
+                      </select>
+                    </div>
+
+                    {/* แสดงตัวเลือก "ลักษณะรางเคเบิ้ล" เฉพาะเมื่อเลือกกลุ่ม 7 */}
+                    {installGroup.includes('กลุ่ม 7') && (
+                      <div className="md:col-span-3">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">ลักษณะรางเคเบิ้ล</label>
+                        <select className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 text-sm md:text-base bg-white" value={trayType} onChange={e => setTrayType(e.target.value)}>
+                          <option>รางเคเบิลแบบบันได (ไม่มีฝาปิด)</option>
+                          <option>รางเคเบิลแบบด้านล่างทึบ (ไม่มีฝาปิด)</option>
+                          <option>รางเคเบิลแบบบันไดและด้านล่างทึบ (มีฝาปิด)</option>
+                        </select>
+                      </div>
+                    )}
+                    
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">อุณหภูมิที่ติดตั้ง (°C)</label>
+                        <div className="flex gap-3">
+                          <select className="flex-1 border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white" value={temperature} onChange={e => setTemperature(e.target.value)}>
+                            {tempOptions.map((t, idx) => <option key={idx}>{t}</option>)}
+                          </select>
+                          <div className="flex flex-col justify-center bg-white px-4 border border-slate-200 rounded-lg min-w-[100px] text-center">
+                            <span className="text-[10px] text-slate-400">ตัวคูณ Ct</span>
+                            <span className={`font-bold ${currentCt === '-' ? 'text-red-500' : 'text-blue-600'}`}>{currentCt}</span>
+                          </div>
+                        </div>
+                        {currentCt === '-' && <p className="text-xs text-red-500 mt-1">* ไม่มีพิกัดอุณหภูมินี้สำหรับฉนวนที่เลือก</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">จำนวนกลุ่มวงจร</label>
+                        <div className="flex gap-3">
+                          <select className="flex-1 border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white" value={circuitGroup} onChange={e => setCircuitGroup(e.target.value)}>
+                            {circuitGroupOptions.map((g, idx) => <option key={idx}>{g}</option>)}
+                          </select>
+                          <div className="flex flex-col justify-center bg-white px-4 border border-slate-200 rounded-lg min-w-[100px] text-center">
+                            <span className="text-[10px] text-slate-400">ตัวคูณ Cg</span>
+                            <span className="font-bold text-green-600">{currentCg}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Column (col-span-4) - sticky final result */}
+              <div className="lg:col-span-4 lg:sticky lg:top-6">
+                {/* Section 3: Final Result Placeholder */}
+                <div className="bg-[#1a2332] p-8 rounded-2xl shadow-lg border border-slate-700 text-center relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                  <p className="text-slate-300 text-sm font-medium mb-3">ขนาดสายไฟขั้นต่ำที่แนะนำ</p>
+                  <div className="text-4xl font-bold text-white mb-3 tracking-tight">
+                    {calculatedCableSize !== null ? calculatedCableSize : 'รอการคำนวณ'} <span className="text-2xl font-normal text-slate-400">{calculatedCableSize !== null && !String(calculatedCableSize).includes('N/A') ? 'mm²' : ''}</span>
+                  </div>
+                  <p className="text-slate-400 text-sm flex flex-col justify-center gap-2 items-center mt-2">
+                    <span className="inline-block bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 w-full">
+                      ตัวคูณรวม (Derating) = {currentCt !== '-' ? (currentCt * currentCg).toFixed(2) : 'N/A'}
+                    </span>
+                    {targetAmpacity > 0 && (
+                      <span className="inline-block bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 w-full">
+                        กระแสเป้าหมาย = {targetAmpacity.toFixed(2)} A
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          );
         }
-      } else {
-        displayResultValue.innerText = 'รอการคำนวณ';
-        displayResultUnit.innerText = '';
-        displayCableSize.innerText = '...';
-        targetAmpContainer.style.display = 'none';
-      }
-    }
 
-    // Initialize the app when DOM is fully loaded
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
 
