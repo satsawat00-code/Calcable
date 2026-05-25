@@ -12,47 +12,6 @@
             background-color: #f3f4f6; 
         } 
     </style>
-</head>
-<body class="flex flex-col min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
-        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
-            <span>⚡ For_Engineer</span>
-        </div>
-    </header>
-    <!-- Content -->
-    <!-- จุดที่แก้ไขที่ 1: เปลี่ยนความกว้างจาก max-w-5xl เป็น max-w-7xl (กว้างขึ้น) หรือจะเปลี่ยนเป็น w-full ล้วนๆ เลยก็ได้ -->
-    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
-        
-        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า จัดให้อยู่บรรทัดเดียวกันเพื่อประหยัดพื้นที่ -->
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
-                โปรแกรมคำนวณขนาดสายไฟฟ้า
-            </h1>
-            
-            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md">
-                ← กลับหน้าแรก
-            </a>
-        </div>
-
-        <!-- จุดที่แก้ไขที่ 2: ลบกล่อง <div class="bg-white p-8..."> ออกไปเลย -->
-        <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คำนวณขนาดสายไฟฟ้า - For_Engineer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style> 
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background-color: #f3f4f6; 
-        } 
-    </style>
 
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -62,6 +21,29 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+            <span>⚡ For_Engineer</span>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
+        
+        <!-- ปุ่มกลับหน้าแรกและชื่อหน้า -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <span class="bg-indigo-600 p-2 rounded-lg text-white text-sm">⚡</span>
+                โปรแกรมคำนวณขนาดสายไฟฟ้า
+            </h1>
+            
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-semibold transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md whitespace-nowrap">
+                ← กลับหน้าแรก
+            </a>
+        </div>
+
         <!-- React Root Container -->
         <div id="root" class="w-full"></div>
 
@@ -169,7 +151,7 @@
           { size: 150, g1_2c_s: 238, g1_2c_m: 205, g1_3c_s: 211, g1_3c_m: 187, g2_2c_s: 293, g2_2c_m: 235, g2_3c_s: 251, g2_3c_m: 205, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 389, g4_2c_m: null, g4_3c_s: 389, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 446, g7_2c_m: 406, g7_3c_s: 417, g7_3c_m: 361, g7s_2c_s: 361, g7s_2c_m: 316, g7s_3c_s: 318, g7s_3c_m: 282, g7c_2c_s: 339, g7c_2c_m: 297, g7c_3c_s: 319, g7c_3c_m: 273 },
           { size: 185, g1_2c_s: 271, g1_2c_m: 232, g1_3c_s: 240, g1_3c_m: 212, g2_2c_s: 333, g2_2c_m: 268, g2_3c_s: 284, g2_3c_m: 232, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 444, g4_2c_m: null, g4_3c_s: 444, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 512, g7_2c_m: 463, g7_3c_s: 479, g7_3c_m: 412, g7s_2c_s: 412, g7s_2c_m: 358, g7s_3c_s: 359, g7s_3c_m: 317, g7c_2c_s: 388, g7c_2c_m: 339, g7c_3c_s: 364, g7c_3c_m: 311 },
           { size: 240, g1_2c_s: 318, g1_2c_m: 271, g1_3c_s: 281, g1_3c_m: 248, g2_2c_s: 391, g2_2c_m: 313, g2_3c_s: 331, g2_3c_m: 270, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 530, g4_2c_m: null, g4_3c_s: 530, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 607, g7_2c_m: 546, g7_3c_s: 569, g7_3c_m: 484, g7s_2c_s: 484, g7s_2c_m: 419, g7s_3c_s: 416, g7s_3c_m: 364, g7c_2c_s: 461, g7c_2c_m: 400, g7c_3c_s: 433, g7c_3c_m: 367 },
-          { size: 300, g1_2c_s: 364, g1_2c_m: 311, g1_3c_s: 322, g1_3c_m: 283, g2_2c_s: 447, g2_2c_m: 359, g2_3c_s: 377, g2_3c_m: 308, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 611, g4_2c_m: null, g4_3c_s: 611, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 698, g7_2c_m: 629, g7_3c_s: 655, g7_3c_m: 558, g7s_2c_s: 558, g7s_2c_m: 479, g7s_3c_m: 477, g7s_3c_m: 415, g7c_2c_s: 531, g7c_2c_m: 459, g7c_3c_s: 499, g7c_3c_m: 422 },
+          { size: 300, g1_2c_s: 364, g1_2c_m: 311, g1_3c_s: 322, g1_3c_m: 283, g2_2c_s: 447, g2_2c_m: 359, g2_3c_s: 377, g2_3c_m: 308, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 611, g4_2c_m: null, g4_3c_s: 611, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 698, g7_2c_m: 629, g7_3c_s: 655, g7_3c_m: 558, g7s_2c_s: 558, g7s_2c_m: 479, g7s_3c_s: 477, g7s_3c_m: 415, g7c_2c_s: 531, g7c_2c_m: 459, g7c_3c_s: 499, g7c_3c_m: 422 },
           { size: 400, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 833, g7_2c_m: 749, g7_3c_s: 782, g7_3c_m: 660, g7s_2c_s: 666,  g7s_2c_m: 599,  g7s_3c_s: 626,  g7s_3c_m: 528, g7c_2c_s: 634, g7c_2c_m: null, g7c_3c_s: 596, g7c_3c_m: null },
           { size: 500, g1_2c_s: null,g1_2c_m: null,g1_3c_s: null,g1_3c_m: null,g2_2c_s: null, g2_2c_m: null, g2_3c_s: null, g2_3c_m: null, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: null, g4_2c_m: null, g4_3c_s: null, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 960, g7_2c_m: 865, g7_3c_s: 902, g7_3c_m: 761, g7s_2c_s: 768,  g7s_2c_m: 692,  g7s_3c_s: 722,  g7s_3c_m: 609, g7c_2c_s: 733, g7c_2c_m: null, g7c_3c_s: 688, g7c_3c_m: null }
         ];
@@ -182,7 +164,7 @@
           { size: 4,   g1_2c_s: 35,  g1_2c_m: 31,  g1_3c_s: 31,  g1_3c_m: 28,  g2_2c_s: 41,  g2_2c_m: 34,  g2_3c_s: 35,  g2_3c_m: 30,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 51,  g4_2c_m: null, g4_3c_s: 51,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 42, g7_2c_m: 42, g7_3c_s: 38, g7_3c_m: 38, g7s_2c_s: 45,  g7s_2c_m: 41,  g7s_3c_s: 38,  g7s_3c_m: 37, g7c_2c_s: 43, g7c_2c_m: 39, g7c_3c_s: 40, g7c_3c_m: 36 },
           { size: 6,   g1_2c_s: 45,  g1_2c_m: 40,  g1_3c_s: 40,  g1_3c_m: 35,  g2_2c_s: 52,  g2_2c_m: 43,  g2_3c_s: 45,  g2_3c_m: 38,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 65,  g4_2c_m: null, g4_3c_s: 65,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 54, g7_2c_m: 54, g7_3c_s: 49, g7_3c_m: 49, g7s_2c_s: 57,  g7s_2c_m: 52,  g7s_3c_s: 49,  g7s_3c_m: 47, g7c_2c_s: 55, g7c_2c_m: 49, g7c_3c_s: 52, g7c_3c_m: 46 },
           { size: 10,  g1_2c_s: 61,  g1_2c_m: 53,  g1_3c_s: 54,  g1_3c_m: 47,  g2_2c_s: 71,  g2_2c_m: 59,  g2_3c_s: 60,  g2_3c_m: 51,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 90,  g4_2c_m: null, g4_3c_s: 90,  g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 74, g7_2c_m: 74, g7_3c_s: 67, g7_3c_m: 67, g7s_2c_s: 78,  g7s_2c_m: 71,  g7s_3c_s: 67,  g7s_3c_m: 63, g7c_2c_s: 74, g7c_2c_m: 67, g7c_3c_s: 70, g7c_3c_m: 62 },
-          { size: 16,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 62,  g2_2c_s: 93,  g2_2c_m: 77,  g2_3c_s: 79,  g2_3c_m: 67,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 120, g4_2c_m: null, g4_3c_s: 120, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 98, g7_2c_m: 98, g7_3c_s: 89, g7_3c_m: 89, g7s_2c_s: 102, g7s_2c_m: 93,  g7s_3c_s: 89,  g7s_3c_m: 83, g7c_2c_s: 99, g7c_2c_m: 89, g7c_3c_s: 93, g7c_3c_m: 83 },
+          { size: 16,  g1_2c_s: 80,  g1_2c_m: 70,  g1_3c_s: 71,  g1_3c_m: 62,  g2_2c_s: 93,  g2_2c_m: 77,  g2_3c_s: 79,  g2_3c_m: 67,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 120, g4_2c_m: null, g4_3c_s: 120, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 98, g7_2c_m: 98, g7_3c_s: 89, g7_3c_m: 89, g7s_2c_s: 102, g7s_2c_m: 93, g7s_3c_s: 89, g7s_3c_m: 83, g7c_2c_s: 99, g7c_2c_m: 89, g7c_3c_s: 93, g7c_3c_m: 83 },
           { size: 25,  g1_2c_s: 105, g1_2c_m: 91,  g1_3c_s: 93,  g1_3c_m: 81,  g2_2c_s: 122, g2_2c_m: 101, g2_3c_s: 104, g2_3c_m: 88,  g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 156, g4_2c_m: null, g4_3c_s: 156, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 129, g7_2c_m: 129, g7_3c_s: 117, g7_3c_m: 117, g7s_2c_s: 135, g7s_2c_m: 123, g7s_3c_s: 117, g7s_3c_m: 108, g7c_2c_s: 131, g7c_2c_m: 116, g7c_3c_s: 123, g7c_3c_m: 108 },
           { size: 35,  g1_2c_s: 128, g1_2c_m: 111, g1_3c_s: 113, g1_3c_m: 98,  g2_2c_s: 149, g2_2c_m: 123, g2_3c_s: 127, g2_3c_m: 107, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 191, g4_2c_m: null, g4_3c_s: 191, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 158, g7_2c_m: 158, g7_3c_s: 143, g7_3c_m: 143, g7s_2c_s: 165, g7s_2c_m: 149, g7s_3c_s: 143, g7s_3c_m: 131, g7c_2c_s: 161, g7c_2c_m: 142, g7c_3c_s: 151, g7c_3c_m: 132 },
           { size: 50,  g1_2c_s: 154, g1_2c_m: 133, g1_3c_s: 136, g1_3c_m: 118, g2_2c_s: 180, g2_2c_m: 147, g2_3c_s: 153, g2_3c_m: 128, g3_2c_s: null, g3_2c_m: null, g3_3c_s: null, g3_3c_m: null, g4_2c_s: 232, g4_2c_m: null, g4_3c_s: 232, g4_3c_m: null, g5_2c_s: null, g5_2c_m: null, g5_3c_s: null, g5_3c_m: null, g6_2c_s: null, g6_2c_m: null, g6_3c_s: null, g6_3c_m: null, g7_2c_s: 192, g7_2c_m: 192, g7_3c_s: 174, g7_3c_m: 174, g7s_2c_s: 199, g7s_2c_m: 178, g7s_3c_s: 174, g7s_3c_m: 158, g7c_2c_s: 195, g7c_2c_m: 171, g7c_3c_s: 183, g7c_3c_m: 158 },
@@ -202,7 +184,9 @@
           const [phase, setPhase] = useState('AC 3-Phase');
           const [voltage, setVoltage] = useState(400);
           const [loadCurrent, setLoadCurrent] = useState('');
+          const [cbMode, setCbMode] = useState('Auto'); // 'Auto' หรือ 'Manual'
           const [cbSize, setCbSize] = useState('');
+          const [calcMethod, setCalcMethod] = useState('Load'); // 'Load' หรือ 'CB' (คำนวณจากกระแสโหลด หรือ ขนาดเบรกเกอร์)
 
           const [insulation, setInsulation] = useState('PVC 70°C');
           const [coreType, setCoreType] = useState('Single Core');
@@ -216,8 +200,10 @@
           const [currentCg, setCurrentCg] = useState(1.0);
           const [calculatedCableSize, setCalculatedCableSize] = useState(null);
           const [targetAmpacity, setTargetAmpacity] = useState(0);
+          const [cableMaxAmp, setCableMaxAmp] = useState(0); // พิกัดทนกระแสสูงสุดของสายไฟ (ก่อน Derating)
+          const [cableActualAmp, setCableActualAmp] = useState(0); // พิกัดทนกระแสใช้งานจริงของสายไฟ (หลัง Derating)
 
-          const standardCB = [10, 16, 20, 25, 32, 40, 50, 63];
+          const standardCB = [10, 16, 20, 25, 32, 40, 50, 63, 80, 100];
           const tempOptions = Object.keys(tempDeratingAir);
           const circuitGroupOptions = Object.keys(groupDerating);
           const installGroups = [
@@ -230,19 +216,37 @@
             'กลุ่ม 7: วางบนรางเคเบิล (Cable Tray)'
           ];
 
+          // ควบคุมการเปลี่ยนค่ากระแสโหลด และ คำนวณเบรกเกอร์อัตโนมัติหากอยู่ในโหมด Auto
           const handleLoadChange = (e) => {
             const val = e.target.value;
             setLoadCurrent(val);
-            if (val && !isNaN(val)) {
-              const targetCB = parseFloat(val) * 1.25;
-              const matchedCB = standardCB.find(size => size >= targetCB);
-              setCbSize(matchedCB ? matchedCB : Math.ceil(targetCB));
-            } else if (val === '') {
-              setCbSize('');
+            if (cbMode === 'Auto') {
+              if (val && !isNaN(val)) {
+                const targetCB = parseFloat(val) * 1.25;
+                const matchedCB = standardCB.find(size => size >= targetCB);
+                setCbSize(matchedCB ? matchedCB : Math.ceil(targetCB));
+              } else {
+                setCbSize('');
+              }
             }
           };
 
+          // ตรวจจับเมื่อผู้ใช้สลับโหมดการเลือกขนาดเซอร์กิตเบรกเกอร์
           useEffect(() => {
+            if (cbMode === 'Auto') {
+              if (loadCurrent && !isNaN(loadCurrent)) {
+                const targetCB = parseFloat(loadCurrent) * 1.25;
+                const matchedCB = standardCB.find(size => size >= targetCB);
+                setCbSize(matchedCB ? matchedCB : Math.ceil(targetCB));
+              } else {
+                setCbSize('');
+              }
+            }
+          }, [cbMode, loadCurrent]);
+
+          // คำนวณขนาดสายไฟหลัก
+          useEffect(() => {
+            // 1. หาตัวคูณ Ct (อุณหภูมิ)
             let ctVal = null;
             if (installType === 'เดินอากาศ') {
               ctVal = tempDeratingAir[temperature]?.[insulation];
@@ -251,15 +255,26 @@
             }
             setCurrentCt(ctVal !== null && ctVal !== undefined ? ctVal : '-');
 
+            // 2. หาตัวคูณ Cg (กลุ่มวงจร)
             const isSurface = installGroup.includes('กลุ่ม 3') || installGroup.includes('กลุ่ม 4');
             const cgType = isSurface ? 'surface' : 'enclosed';
             const cgVal = groupDerating[circuitGroup]?.[cgType];
             setCurrentCg(cgVal !== undefined ? cgVal : 1.0);
 
-            if (loadCurrent && ctVal && ctVal !== '-' && cgVal) {
-              const requiredAmp = parseFloat(loadCurrent) / (ctVal * cgVal);
+            // 3. กำหนดค่าอ้างอิงที่จะใช้คำนวณ (ใช้กระแสโหลด หรือ ขนาดเบรกเกอร์)
+            let baseValueToCalc = 0;
+            if (calcMethod === 'Load') {
+              baseValueToCalc = parseFloat(loadCurrent) || 0;
+            } else {
+              baseValueToCalc = parseFloat(cbSize) || 0;
+            }
+
+            if (baseValueToCalc > 0 && ctVal && ctVal !== '-' && cgVal) {
+              // สูตรหลัก: กระแสเป้าหมายที่สายไฟต้องทนได้หลังคูณตัวคูณปรับลด = ค่าอ้างอิง / (Ct * Cg)
+              const requiredAmp = baseValueToCalc / (ctVal * cgVal);
               setTargetAmpacity(requiredAmp);
 
+              // เลือกตารางตามประเภทฉนวน
               let selectedDB = null;
               if (insulation === 'PVC 70°C') selectedDB = ampacityPVC70;
               else if (insulation === 'PVC 90°C') selectedDB = ampacityPVC90;
@@ -301,23 +316,35 @@
                 const c = coreType === 'Single Core' ? 's' : 'm';
                 const lookupKey = `g${g}_${p}c_${c}`;
 
+                // ค้นหาขนาดสายไฟที่พิกัดกระแสสูงสุด (ก่อน Derating) มากกว่าหรือเท่ากับ กระแสเป้าหมายที่คำนวณมาได้
                 const matchedCable = selectedDB.find(item => item[lookupKey] !== null && item[lookupKey] !== undefined && item[lookupKey] >= requiredAmp);
                 
                 if (matchedCable) {
                   setCalculatedCableSize(matchedCable.size);
+                  const rawAmp = matchedCable[lookupKey];
+                  setCableMaxAmp(rawAmp); // กระแสก่อนคูณตัวปรับลด
+                  setCableActualAmp(rawAmp * ctVal * cgVal); // กระแสใช้งานจริงหลังคูณตัวปรับลด
                 } else {
                   setCalculatedCableSize('เกินขนาด');
+                  setCableMaxAmp(0);
+                  setCableActualAmp(0);
                 }
               } else if (!isTrayValid) {
-                 setCalculatedCableSize('N/A (รอข้อมูลตารางลักษณะรางเคเบิ้ลนี้)');
+                 setCalculatedCableSize('N/A (รอข้อมูลลักษณะรางเคเบิ้ล)');
+                 setCableMaxAmp(0);
+                 setCableActualAmp(0);
               } else {
                  setCalculatedCableSize('N/A (รอข้อมูลตาราง)');
+                 setCableMaxAmp(0);
+                 setCableActualAmp(0);
               }
             } else {
               setCalculatedCableSize(null);
               setTargetAmpacity(0);
+              setCableMaxAmp(0);
+              setCableActualAmp(0);
             }
-          }, [loadCurrent, temperature, insulation, installType, installGroup, trayType, circuitGroup, phase, coreType]);
+          }, [loadCurrent, cbSize, calcMethod, temperature, insulation, installType, installGroup, trayType, circuitGroup, phase, coreType]);
 
           return (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
@@ -358,12 +385,29 @@
                   </div>
                 </div>
 
-                {/* Section 1: System & Load */}
+                {/* Section 1: System, Load & Calculation Method */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                  <h2 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <div className="w-1.5 h-5 bg-blue-500 rounded-full"></div>
-                    ข้อมูลระบบไฟฟ้าและโหลด (System & Load)
-                  </h2>
+                  <div className="border-b border-slate-100 pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <div className="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+                      ข้อมูลระบบไฟฟ้าและโหลด (System & Load)
+                    </h2>
+                    {/* เกณฑ์เลือกการคำนวณ */}
+                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg self-start sm:self-auto text-xs font-semibold">
+                      <span className="text-slate-500 pl-2 pr-1">ใช้คำนวณจาก:</span>
+                      <button 
+                        onClick={() => setCalcMethod('Load')} 
+                        className={`px-3 py-1.5 rounded-md transition-all ${calcMethod === 'Load' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-200'}`}>
+                        กระแสโหลด
+                      </button>
+                      <button 
+                        onClick={() => setCalcMethod('CB')} 
+                        className={`px-3 py-1.5 rounded-md transition-all ${calcMethod === 'CB' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-200'}`}>
+                        ขนาดเบรกเกอร์
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">ระบบไฟฟ้า (Phase)</label>
@@ -378,15 +422,46 @@
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">กระแสโหลด (Current - A)</label>
-                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-yellow-50" placeholder="กรอกกระแส..." value={loadCurrent} onChange={handleLoadChange} />
+                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-yellow-50" placeholder="กรอกกระแสโหลด..." value={loadCurrent} onChange={handleLoadChange} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">ขนาดเซอร์กิตเบรกเกอร์ (CB - A)</label>
-                      <input type="number" className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-green-50" 
-                        value={cbSize} 
-                        onChange={e => setCbSize(e.target.value)}
-                        placeholder="กรอกขนาด CB..."
-                      />
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-sm font-medium text-slate-700">ขนาดเซอร์กิตเบรกเกอร์ (CB - A)</label>
+                        {/* ปลั๊กอินเลือก Auto/Manual */}
+                        <div className="flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold">
+                          <button 
+                            onClick={() => setCbMode('Auto')} 
+                            className={`px-2 py-0.5 rounded ${cbMode === 'Auto' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}>
+                            Auto
+                          </button>
+                          <button 
+                            onClick={() => setCbMode('Manual')} 
+                            className={`px-2 py-0.5 rounded ${cbMode === 'Manual' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}>
+                            Manual
+                          </button>
+                        </div>
+                      </div>
+
+                      {cbMode === 'Auto' ? (
+                        <input 
+                          type="number" 
+                          className="w-full border border-slate-200 rounded-lg p-2.5 outline-none bg-slate-100 text-slate-500 cursor-not-allowed font-medium" 
+                          value={cbSize} 
+                          disabled 
+                          placeholder="คำนวณอัตโนมัติ..."
+                        />
+                      ) : (
+                        <select 
+                          className="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white font-medium text-slate-800"
+                          value={cbSize}
+                          onChange={e => setCbSize(e.target.value)}
+                        >
+                          <option value="">-- เลือกขนาดเบรกเกอร์ --</option>
+                          {standardCB.map(size => (
+                            <option key={size} value={size}>{size} A</option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -474,24 +549,55 @@
               </div>
 
               {/* Right Column (col-span-4) - sticky final result */}
-              <div className="lg:col-span-4 lg:sticky lg:top-6">
+              <div className="lg:col-span-4 lg:sticky lg:top-6 space-y-4">
                 {/* Section 3: Final Result Placeholder */}
-                <div className="bg-[#1a2332] p-8 rounded-2xl shadow-lg border border-slate-700 text-center relative overflow-hidden">
+                <div className="bg-[#1a2332] p-8 rounded-2xl shadow-lg border border-slate-700 text-center relative overflow-hidden text-white">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
                   <p className="text-slate-300 text-sm font-medium mb-3">ขนาดสายไฟขั้นต่ำที่แนะนำ</p>
-                  <div className="text-4xl font-bold text-white mb-3 tracking-tight">
-                    {calculatedCableSize !== null ? calculatedCableSize : 'รอการคำนวณ'} <span className="text-2xl font-normal text-slate-400">{calculatedCableSize !== null && !String(calculatedCableSize).includes('N/A') ? 'mm²' : ''}</span>
-                  </div>
-                  <p className="text-slate-400 text-sm flex flex-col justify-center gap-2 items-center mt-2">
-                    <span className="inline-block bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 w-full">
-                      ตัวคูณรวม (Derating) = {currentCt !== '-' ? (currentCt * currentCg).toFixed(2) : 'N/A'}
+                  
+                  {/* การแสดงผลขนาดสาย */}
+                  <div className="text-4xl font-bold mb-5 tracking-tight text-white">
+                    {calculatedCableSize !== null ? calculatedCableSize : 'รอการคำนวณ'} 
+                    <span className="text-2xl font-normal text-slate-400 ml-1">
+                      {calculatedCableSize !== null && !String(calculatedCableSize).includes('N/A') && !String(calculatedCableSize).includes('เกิน') ? 'mm²' : ''}
                     </span>
+                  </div>
+
+                  {/* การระบุว่าสายที่เลือกทนกระแสได้เท่าไหร่ */}
+                  {calculatedCableSize && !String(calculatedCableSize).includes('N/A') && !String(calculatedCableSize).includes('เกิน') && (
+                    <div className="bg-slate-800/80 rounded-xl p-4 mb-4 border border-slate-700 text-left space-y-2">
+                      <div className="text-xs text-indigo-400 font-bold uppercase tracking-wider">พิกัดทนกระแสของสายไฟที่เลือก:</div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-400">กระแสทนได้สูงสุด (ก่อน Derating):</span>
+                        <span className="font-semibold text-white">{cableMaxAmp} A</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm border-t border-slate-700/50 pt-2">
+                        <span className="text-slate-400">ใช้งานจริงได้สูงสุด (หลัง Derating):</span>
+                        <span className="font-semibold text-emerald-400">{cableActualAmp.toFixed(1)} A</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="bg-slate-800 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 flex justify-between">
+                      <span>ตัวคูณปรับอุณหภูมิ (Ct)</span>
+                      <span className="font-bold text-white">{currentCt}</span>
+                    </div>
+                    <div className="bg-slate-800 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 flex justify-between">
+                      <span>ตัวคูณปรับกลุ่มวงจร (Cg)</span>
+                      <span className="font-bold text-white">{currentCg}</span>
+                    </div>
+                    <div className="bg-slate-800 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 flex justify-between">
+                      <span>ตัวคูณรวม (Derating)</span>
+                      <span className="font-bold text-white">{currentCt !== '-' ? (currentCt * currentCg).toFixed(2) : 'N/A'}</span>
+                    </div>
                     {targetAmpacity > 0 && (
-                      <span className="inline-block bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 w-full">
-                        กระแสเป้าหมาย = {targetAmpacity.toFixed(2)} A
-                      </span>
+                      <div className="bg-slate-800 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300 flex justify-between items-center bg-indigo-950/40 border-indigo-900">
+                        <span className="text-indigo-200">กระแสเป้าหมายที่ใช้คำนวณ:</span>
+                        <span className="font-bold text-indigo-300 text-sm">{targetAmpacity.toFixed(1)} A</span>
+                      </div>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -502,10 +608,5 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-</body>
-</html>
-
-        </div>
-    </main>
 </body>
 </html>
