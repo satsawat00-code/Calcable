@@ -39,9 +39,7 @@
 
         <!-- จุดที่แก้ไขที่ 2: ลบกล่อง <div class="bg-white p-8..."> ออกไปเลย -->
         <!-- นำโค้ดเดิมทั้งหมดของโปรแกรมคำนวณแรงดันตกของคุณ (ตั้งแต่แท็ก container นอกสุดของเนื้อหา) มาวางต่อจากบรรทัดนี้ได้เลยครับ -->
-        
-        <div class="w-full">
-            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -148,9 +146,9 @@
         };
 
         function App() {
-            // State
+            // State (ปรับปรุง: ให้สามารถกรอกเป็น string ว่างได้เพื่อไม่ให้มีเลข 0 ค้างเวลาพิมพ์แก้)
             const [selectedSize, setSelectedSize] = useState('Auto');
-            const [fillPercentage, setFillPercentage] = useState(40);
+            const [fillPercentage, setFillPercentage] = useState('40');
             
             // โครงสร้าง state สายไฟเพิ่ม Type และ Area (เพื่อเก็บค่าที่คำนวณหรือแก้เอง)
             const initialDefaultType = 'IEC 01';
@@ -242,10 +240,13 @@
                 let actualFillPercent = 0;
                 let isOverfilled = false;
 
+                // แปลงค่า fillPercentage เป็นตัวเลขสำหรับการคำนวณ (ถ้าเป็นค่าว่างหรือพิมพ์ผิดจะให้เป็น 0)
+                const fillPercentNum = parseFloat(fillPercentage) || 0;
+
                 if (selectedSize === 'Auto') {
                 // หาท่อที่เล็กที่สุดที่รองรับได้ (คำนวณอัตโนมัติ)
                 for (let conduit of availableConduits) {
-                    const allowedArea = conduit.area * (fillPercentage / 100);
+                    const allowedArea = conduit.area * (fillPercentNum / 100);
                     if (allowedArea >= totalWireArea) {
                     recommendedConduit = conduit;
                     actualFillPercent = (totalWireArea / conduit.area) * 100;
@@ -257,7 +258,7 @@
                 recommendedConduit = availableConduits.find(c => c.size === selectedSize);
                 if (recommendedConduit) {
                     actualFillPercent = (totalWireArea / recommendedConduit.area) * 100;
-                    const allowedArea = recommendedConduit.area * (fillPercentage / 100);
+                    const allowedArea = recommendedConduit.area * (fillPercentNum / 100);
                     isOverfilled = totalWireArea > allowedArea;
                 }
                 }
@@ -273,8 +274,19 @@
 
             }, [wires, selectedSize, fillPercentage]);
 
-            // Validation Warnings
-            const isFillWarning = fillPercentage > 40;
+            // หาค่ามาตรฐานเริ่มต้นตามจำนวนเส้นรวมทั้งหมด
+            const standardLimit = useMemo(() => {
+                const count = calcResult.totalWiresCount;
+                if (count === 1) return 53;
+                if (count === 2) return 31;
+                return 40; // 3 เส้นขึ้นไป
+            }, [calcResult.totalWiresCount]);
+
+            // เช็คว่าค่าปัจจุบันไม่ตรงกับมาตรฐานตามจำนวนเส้นที่เลือกหรือไม่
+            const isFillWarning = useMemo(() => {
+                const fillPercentNum = parseFloat(fillPercentage) || 0;
+                return fillPercentNum !== standardLimit;
+            }, [fillPercentage, standardLimit]);
 
             return (
                 <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
@@ -326,7 +338,7 @@
                             <span className="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-semibold shadow-sm border border-indigo-100">
                                 ท่อขนาด {calcResult.recommendedConduit ? `${calcResult.recommendedConduit.size} (${calcResult.recommendedConduit.mm} มม.)` : '-'}
                             </span>
-                            <span className="text-sm text-slate-500 mt-2">พื้นที่หน้าตัดรวมสาย: {calcResult.totalWireArea} ตร.มม.</span>
+                            <span className="text-sm text-slate-500 mt-2">พื้นที่หน้าตัดรวมสายไฟฟ้า: {calcResult.totalWireArea} ตร.มม.</span>
                             </div>
                         </div>
                         </div>
@@ -363,17 +375,22 @@
                                 <input 
                                 type="number" 
                                 value={fillPercentage}
-                                onChange={(e) => setFillPercentage(Number(e.target.value))}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    // หากค่าเป็นช่องว่างเปล่าๆ ให้ส่งค่าเป็นค่าว่าง ไม่ต้องใส่ 0 ค้างไว้
+                                    setFillPercentage(val === '' ? '' : val);
+                                }}
                                 className={`w-full border rounded-lg p-2.5 pr-8 outline-none focus:ring-2 ${isFillWarning ? 'border-amber-300 focus:ring-amber-500 focus:border-amber-500' : 'border-slate-300 focus:ring-indigo-500 focus:border-indigo-500'}`}
                                 min="1"
                                 max="100"
+                                placeholder={standardLimit.toString()}
                                 />
                                 <span className="absolute right-3 top-2.5 text-slate-400">%</span>
                             </div>
                             {isFillWarning && (
                                 <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                มาตรฐานพื้นที่ว่างไม่ควรต่ำกว่า 60% (พื้นที่ใช้งานห้ามเกิน 40%)
+                                <AlertCircle className="w-3.5 h-3.5" />
+                                มาตรฐานกำหนดไว้ {standardLimit}% สำหรับสายไฟรวม {calcResult.totalWiresCount} เส้น
                                 </p>
                             )}
                             </div>
@@ -496,7 +513,7 @@
                         
                         <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-between items-center text-sm text-slate-300">
                             <span>พื้นที่ใช้งานจริง:</span>
-                            <span className={`font-medium ${calcResult.actualFillPercent > fillPercentage ? 'text-red-400' : 'text-emerald-400'}`}>
+                            <span className={`font-medium ${calcResult.actualFillPercent > (parseFloat(fillPercentage) || 0) ? 'text-red-400' : 'text-emerald-400'}`}>
                             {calcResult.actualFillPercent}%
                             </span>
                         </div>
@@ -511,9 +528,9 @@
                             </div>
                             
                             <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
-                            <span className="text-slate-500">เกณฑ์มาตรฐาน ({fillPercentage}%)</span>
+                            <span className="text-slate-500">เกณฑ์มาตรฐาน ({fillPercentage || 0}%)</span>
                             <span className="font-medium text-slate-800">
-                                {calcResult.recommendedConduit ? (calcResult.recommendedConduit.area * (fillPercentage/100)).toFixed(2) : '-'} <span className="text-slate-400 text-xs">ตร.มม.</span>
+                                {calcResult.recommendedConduit ? (calcResult.recommendedConduit.area * ((parseFloat(fillPercentage) || 0)/100)).toFixed(2) : '-'} <span className="text-slate-400 text-xs">ตร.มม.</span>
                             </span>
                             </div>
 
@@ -529,15 +546,17 @@
                             <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                             <div>
                                 <h4 className="text-sm font-semibold text-red-700">{calcResult.isManual ? 'ท่อขนาดเล็กเกินไป' : 'ปริมาณสายไฟมากเกินไป'}</h4>
-                                <p className="text-xs text-red-600 mt-1">{calcResult.isManual ? `พื้นที่รวมของสายไฟเกิน ${fillPercentage}% ของท่อขนาด ${selectedSize} ที่คุณเลือก กรุณาเลือกท่อขนาดใหญ่ขึ้น` : 'พื้นที่รวมของสายไฟเกินขนาดท่อใหญ่ที่สุดตามมาตรฐานที่กำหนด ควรพิจารณาแยกวงจรหรือใช้รางเดินสาย'}</p>
+                                <p className="text-xs text-red-600 mt-1">{calcResult.isManual ? `พื้นที่รวมของสายไฟเกิน ${fillPercentage || 0}% ของท่อขนาด ${selectedSize} ที่คุณเลือก กรุณาเลือกท่อขนาดใหญ่ขึ้น` : 'พื้นที่รวมของสายไฟเกินขนาดท่อใหญ่ที่สุดตามมาตรฐานที่กำหนด ควรพิจารณาแยกวงจรหรือใช้รางเดินสาย'}</p>
                             </div>
                             </div>
-                        ) : Number(calcResult.actualFillPercent) > 40 ? (
+                        ) : isFillWarning ? (
                             <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 flex gap-3">
                             <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                             <div>
-                                <h4 className="text-sm font-semibold text-amber-700">พื้นที่ใช้งานเกิน 40%</h4>
-                                <p className="text-xs text-amber-600 mt-1">คุณกำลังตั้งค่าพื้นที่ใช้งาน ({fillPercentage}%) เกินกว่ามาตรฐาน วสท. ที่แนะนำ (40%) สำหรับสายตั้งแต่ 3 เส้นขึ้นไป</p>
+                                <h4 className="text-sm font-semibold text-amber-700">พื้นที่ใช้งานไม่ตรงตามมาตรฐาน</h4>
+                                <p className="text-xs text-amber-600 mt-1">
+                                    มาตรฐานสำหรับสายไฟฟ้า {calcResult.totalWiresCount} เส้น กำหนดขนาดพื้นที่ใช้งานสูงสุดไว้ที่ {standardLimit}% (ปัจจุบันคุณตั้งค่าไว้ที่ {fillPercentage || 0}%)
+                                </p>
                             </div>
                             </div>
                         ) : (
